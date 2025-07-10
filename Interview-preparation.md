@@ -1,5 +1,3 @@
-# Interview-Preparation
-
 # 🚀 Complete Mobile & Full-Stack Developer Interview Preparation Guide
 
 *For Android Developer with 3+ Years Experience*
@@ -8,18 +6,18 @@
 
 ## 📋 Table of Contents
 
-1. [Android Developer (Kotlin/Compose/CMP/KMP)](#android-developer)
-2. [Cross-Platform Mobile (React Native/Flutter)](#cross-platform-mobile)
-3. [Frontend Developer](#frontend-developer)
-4. [Mobile Developer (General)](#mobile-developer)
-5. [Backend Developer](#backend-developer)
-6. [System Design](#system-design)
-7. [Behavioral Questions](#behavioral-questions)
-8. [Tips & Tricks](#tips-tricks)
+1. [Android Developer (Kotlin/Compose/CMP/KMP)](#-android-developer-kotlincomposecmpkmp)
+2. [Cross-Platform Mobile (React Native/Flutter)](#-cross-platform-mobile-react-nativeflutter)
+3. [Frontend Developer](#-frontend-developer)
+4. [Mobile Developer (General)](#-mobile-developer-general)
+5. [Backend Developer](#-backend-developer)
+6. [System Design](#-system-design)
+7. [Behavioral Questions](#-behavioral-questions)
+8. [Tips & Tricks](#-tips--tricks)
 
 ---
 
-## 🤖 Android Developer (Kotlin/Compose/CMP/KMP) {#android-developer}
+## 🤖 Android Developer (Kotlin/Compose/CMP/KMP)
 
 ### 📚 Step-by-Step Learning Path
 
@@ -134,7 +132,7 @@ fun UserProfile(userId: String) {
 
 ---
 
-## 📱 Cross-Platform Mobile (React Native/Flutter) {#cross-platform-mobile}
+## 📱 Cross-Platform Mobile (React Native/Flutter)
 
 ### 📚 Learning Path
 
@@ -269,7 +267,7 @@ class _UserProfileState extends State<UserProfile> {
 
 ---
 
-## 🌐 Frontend Developer {#frontend-developer}
+## 🌐 Frontend Developer
 
 ### 📚 Learning Path (8-10 weeks)
 
@@ -381,7 +379,7 @@ const UserList = React.memo(({ users }) => {
 
 ---
 
-## 📱 Mobile Developer (General) {#mobile-developer}
+## 📱 Mobile Developer (General)
 
 ### 📚 Cross-Platform Concepts
 
@@ -421,7 +419,7 @@ const UserList = React.memo(({ users }) => {
 
 ---
 
-## ⚙️ Backend Developer {#backend-developer}
+## ⚙️ Backend Developer
 
 ### 📚 Learning Path (10-12 weeks)
 
@@ -594,7 +592,7 @@ volumes:
 
 ---
 
-## 🏗️ System Design {#system-design}
+## 🏗️ System Design
 
 ### 📚 Common System Design Topics
 
@@ -647,7 +645,7 @@ API Gateway
 
 ---
 
-## 🗣️ Behavioral Questions {#behavioral-questions}
+## 🗣️ Behavioral Questions
 
 ### 📚 STAR Method Framework
 
@@ -698,7 +696,7 @@ API Gateway
 
 ---
 
-## 💡 Tips & Tricks {#tips-tricks}
+## 💡 Tips & Tricks
 
 ### 🎯 Interview Preparation Strategy
 
