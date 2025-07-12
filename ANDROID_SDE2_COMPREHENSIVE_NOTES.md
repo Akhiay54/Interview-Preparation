@@ -20,7 +20,7 @@
 
 ---
 
-## 🎯 Kotlin Fundamentals
+## Kotlin Fundamentals
 
 ### Key Kotlin Features
 
