@@ -6,7 +6,7 @@ Practical reminders to help you identify and solve each pattern more effectively
 
 ---
 
-## 1️⃣ [Sliding Window](#-🧩-1.-Sliding-Window)
+## 1️⃣ [Sliding Window](#-1-sliding-window)
 
 **When to use:**  
 - Substrings, subarrays, or segments in arrays/strings.  
