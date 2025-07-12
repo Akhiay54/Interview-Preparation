@@ -3,7 +3,7 @@
 
 ---
 
-## 📋 Table of Contents
+## Table of Contents
 
 1. [Kotlin-Specific DSA Concepts](#kotlin-specific-dsa-concepts)
 2. [Data Structures in Kotlin](#data-structures-in-kotlin)
@@ -15,7 +15,7 @@
 
 ---
 
-## 🎯 Kotlin-Specific DSA Concepts
+## Kotlin-Specific DSA Concepts
 
 ### Kotlin Collections vs Java Collections
 
@@ -66,7 +66,7 @@ val result2 = listOf(1, 2, 3, 4, 5)
 
 ---
 
-## 🏗️ Data Structures in Kotlin
+## Data Structures in Kotlin
 
 ### 1. Custom Linked List Implementation
 
@@ -306,7 +306,7 @@ class CustomHashMap<K, V> {
 
 ---
 
-## 🔄 Algorithm Patterns with Kotlin
+## Algorithm Patterns with Kotlin
 
 ### 1. Sliding Window Pattern
 
@@ -575,7 +575,7 @@ fun rob(nums: IntArray): Int {
 
 ---
 
-## 📱 Mobile Development Algorithms
+## Mobile Development Algorithms
 
 ### 1. Image Processing Algorithms
 
@@ -770,7 +770,7 @@ class Autocomplete {
 
 ---
 
-## ⚡ Performance Optimization
+## Performance Optimization
 
 ### 1. Memory Management
 
@@ -861,7 +861,7 @@ class OptimizedSort {
 
 ---
 
-## 🎯 Interview Questions & Solutions
+## Interview Questions & Solutions
 
 ### 1. Two Sum Problem
 
@@ -965,7 +965,7 @@ fun reverseList(head: Node<Int>?): Node<Int>? {
 
 ---
 
-## 📚 Practice Problems
+## Practice Problems
 
 ### Easy Level
 1. **Valid Anagram** - Check if two strings are anagrams
