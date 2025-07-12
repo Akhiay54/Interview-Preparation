@@ -6,7 +6,7 @@ Practical reminders to help you identify and solve each pattern more effectively
 
 ---
 
-## 1️⃣ Sliding Window
+## 1️⃣ [Sliding Window](#-🧩-1.-Sliding-Window)
 
 **When to use:**  
 - Substrings, subarrays, or segments in arrays/strings.  
@@ -299,36 +299,6 @@ Practical reminders to help you identify and solve each pattern more effectively
 - Use prefix sums for weighted randomness.
 - Always double-check uniformity of random selection.
 
----
-
-## 📌 Table of Contents
-
-1. Sliding Window
-2. Two Pointers
-3. Fast & Slow Pointers
-4. Binary Search
-5. Backtracking
-6. Dynamic Programming
-   - 1D DP
-   - 2D DP
-   - DP on Subsequences (LIS, LCS)
-   - DP on Trees
-   - DP with Bitmasking
-   - DP + Knapsack
-   - DP + Monotonic Queue
-7. Greedy
-8. Bit Manipulation
-9. Union Find / Disjoint Set
-10. BFS & DFS
-11. Shortest Paths (Dijkstra, Bellman-Ford, Floyd-Warshall)
-12. Topological Sort
-13. Trees & Tries
-14. Heap / Priority Queue
-15. Monotonic Stack / Queue
-16. Graphs (Bridges, Articulation Points)
-17. Math & Number Theory
-18. Combinatorics / Permutations
-19. Misc Puzzles & Probability
 
 ---
 
