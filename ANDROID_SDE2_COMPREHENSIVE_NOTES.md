@@ -3,7 +3,7 @@
 
 ---
 
-## 📋 Table of Contents
+## Table of Contents
 
 1. [Kotlin Fundamentals](#kotlin-fundamentals)
 2. [Android Architecture](#android-architecture)
@@ -88,7 +88,7 @@ fun View.gone() { visibility = View.GONE }
 
 ---
 
-## 🏗️ Android Architecture
+## Android Architecture
 
 ### MVVM with Repository Pattern
 
@@ -186,7 +186,7 @@ class UserRepositoryImpl @Inject constructor(
 
 ---
 
-## 🎨 Jetpack Compose
+## Jetpack Compose
 
 ### Basic Composable
 
@@ -281,7 +281,7 @@ fun CustomButton(
 
 ---
 
-## 🔧 Android Core Components
+## Android Core Components
 
 ### Activity Lifecycle
 
@@ -399,7 +399,7 @@ WorkManager.getInstance(context).enqueueUniquePeriodicWork(
 
 ---
 
-## 🌐 Networking & Data
+## Networking & Data
 
 ### Retrofit Setup
 
@@ -507,7 +507,7 @@ class UserPreferences @Inject constructor(
 
 ---
 
-## ⚡ Performance & Optimization
+## Performance & Optimization
 
 ### Memory Management
 
@@ -734,7 +734,7 @@ class UserRepositoryTest {
 
 ---
 
-## 🔐 Security
+## Security
 
 ### Network Security
 
@@ -820,7 +820,7 @@ class BiometricManager @Inject constructor(
 
 ---
 
-## 🔄 Kotlin Multiplatform (KMP)
+## Kotlin Multiplatform (KMP)
 
 ### Shared Module Setup
 
@@ -888,7 +888,7 @@ actual class Platform actual constructor() {
 
 ---
 
-## 🚀 Advanced Topics
+## Advanced Topics
 
 ### Dependency Injection with Hilt
 
@@ -1008,7 +1008,7 @@ class UserRepository {
 
 ---
 
-## 📋 Best Practices
+## Best Practices
 
 ### Code Organization
 
