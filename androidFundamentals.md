@@ -291,3 +291,473 @@ Clean Code: Refers to writing code that is readable, maintainable, and easy to u
 Data Structures & Algorithms: While not an everyday task, understanding core concepts (Big O notation, HashMap vs. Array, basic sorting algorithms) is crucial for passing interviews at product-based companies and for writing efficient code.
 
 Continuous Learning: The Android ecosystem evolves rapidly. Stay updated by following the official Android Developers blog, watching talks from conferences like Google I/O and Droidcon, and reading community publications.
+
+
+
+
+
+
+This document provides detailed answers to common and scenario-based interview questions covering Kotlin, Jetpack Compose, and Core Android Fundamentals.
+
+Part 1: Kotlin (Core Language & Coroutines/Flow)
+Beginner / Intermediate Questions
+1. Q: What is the difference between val, var, const val, and a property with a get() method?
+
+A:
+
+var (variable): A mutable property. Its value can be reassigned after initialization.
+
+val (value): An immutable property. It must be assigned a value when it is declared, and it cannot be reassigned.
+
+const val (compile-time constant): A more restrictive version of val. The value must be known at compile time and is inlined by the compiler.
+
+Property with get(): This defines a property whose value is computed every time it is accessed. It doesn't have a backing field.
+
+2. Q: Explain Kotlin's null safety system. What are the ?. (safe call) and ?: (elvis) operators?
+
+A:
+Kotlin's type system distinguishes between nullable (String?) and non-nullable (String) types to prevent NullPointerExceptions at compile time.
+
+?. (Safe Call Operator): Executes a call only if the object is not null; otherwise, it returns null.
+
+?: (Elvis Operator): Provides a default value if the expression on its left side is null.
+
+3. Q: What is the purpose of the inline keyword? What are two major benefits it provides besides performance?
+
+A:
+The inline The keyword tells the compiler to copy the function's bytecode and its lambda parameters directly to the call site. Its two most powerful benefits are:
+
+Non-local returns: Allows a return statement inside a lambda to exit the enclosing function.
+
+reified type parameters: Allows a generic type parameter's actual type to be accessed at runtime (e.g., for is T checks).
+
+4. Q: What is property delegation? Give a practical example using by lazy.
+
+A:
+Property delegation is a pattern where the getter/setter logic for a property is delegated to another object. by lazy { ... } is a standard delegate that ensures a property's value is computed only on its first access and cached for future use. It's ideal for expensive, deferred initialization.
+
+5. Q: What is a coroutine? How is it different from a standard Thread?
+
+A:
+A coroutine is a "lightweight thread" that can be suspended and resumed. Unlike threads, which are heavyweight and managed by the OS, coroutines are managed by the Kotlin runtime and are very cheap to create. Their key feature is suspension, which allows them to pause without blocking the underlying thread.
+
+6. Q: What is Structured Concurrency? What three guarantees does it provide?
+
+A:
+Structured Concurrency is a model that treats coroutines as a hierarchy within a CoroutineScope. It guarantees:
+
+Cancellation is Propagated Downwards: Cancelling the scope cancels all children.
+
+Parent Waits for Children: A parent scope won't complete until all its children do.
+
+Errors are Propagated Upwards: A child's failure cancels its parent and siblings.
+
+7. Q: Explain the difference between Dispatchers.IO, Dispatchers.Main, and Dispatchers.Default.
+
+A:
+
+Dispatchers.Main: The main UI thread. For all UI-related tasks.
+
+Dispatchers.IO: A background thread pool for I/O-bound operations (networking, disk access).
+
+Dispatchers.Default: A background thread pool for CPU-intensive work (complex calculations, sorting large lists).
+
+8. Q: What is the difference between launch and async?
+
+A:
+
+launch: "Fire and forget." Starts a coroutine that doesn't return a result. Returns a Job.
+
+async: Starts a coroutine that computes a result. Returns a Deferred<T>, from which you get the result by calling .await(). Use it for parallel decomposition.
+
+9. Q: What does it mean for a Flow to be "cold"? How is this different from a "hot" stream?
+
+A:
+
+Cold Flow (Flow): Is lazy. The producer code only runs when a terminal operator like .collect() is called. Each new collector gets a new, independent stream.
+
+Hot Flow (StateFlow, SharedFlow): Is active regardless of collectors. It broadcasts values to all current listeners simultaneously.
+
+10. Q: Compare and contrast StateFlow and SharedFlow.
+
+A:
+
+StateFlow: Represents state. It always has a value, replays the latest value to new subscribers, and is conflated. Ideal for ViewModel UI state.
+
+SharedFlow: Represents events. It's a general-purpose broadcast stream with no initial value by default. Ideal for one-time events like showing a Snackbar or navigation.
+
+Advanced / Scenario-Based Questions
+(Answers for this section are in Part 4)
+
+Part 2: Jetpack Compose
+Beginner / Intermediate Questions
+17. Q: What is recomposition? What triggers it?
+
+A:
+Recomposition is the process of Jetpack Compose re-running your @Composable functions to update the UI. It is triggered whenever a state object that a composable reads from, changes.
+
+18. Q: What is the most important thing you can do to prevent unnecessary recompositions?
+
+A:
+Use stable data types for state and parameters, with immutability being the ideal goal. The best practice is to model UI state using Kotlin's data class with val properties for all its fields.
+
+19. Q: Explain state hoisting and why it is the recommended pattern in Compose.
+
+A:
+State hoisting is a pattern where you make a composable stateless by moving its state up to its caller. This creates a Unidirectional Data Flow (UDF) and makes components reusable, testable, and establishes a single source of truth.
+
+20. Q: What is the difference between remember and rememberSaveable?
+
+A:
+
+remember: Survives recompositions but is lost if the Activity is recreated.
+
+rememberSaveable: Survives both recomposition and Activity/process recreation by saving the state to the Bundle.
+
+21. Q: What are the three phases of rendering a Compose frame?
+
+A:
+
+Composition: Running @Composable functions to build a UI description.
+
+Layout: Measuring and placing UI elements.
+
+Drawing: Rendering the elements onto the canvas.
+
+22. Q: Explain the difference between LaunchedEffect, rememberCoroutineScope, and DisposableEffect.
+
+A:
+
+LaunchedEffect: Runs a suspend block tied to the composable's lifecycle. For "on-enter" logic like fetching data.
+
+rememberCoroutineScope: Provides a CoroutineScope to launch coroutines manually from event handlers like onClick.
+
+DisposableEffect: For side effects that require cleanup. Its onDispose block is guaranteed to run on exit. For registering/unregistering listeners.
+
+23. Q: How do you use a traditional Android View inside a composable function?
+
+A:
+You use the AndroidView composable, which acts as a bridge. You provide a factory lambda to create the View and an update lambda to update it based on state changes.
+
+Advanced / Scenario-Based Questions
+(Answers for this section are in Part 4)
+
+Part 3: Core Android Fundamentals
+Beginner / Intermediate Questions
+28. Q: Describe the Activity lifecycle. What happens when a user rotates the screen?
+
+A:
+The standard lifecycle is onCreate() -> onStart() -> onResume() -> onPause() -> onStop() -> onDestroy(). On screen rotation, the Activity is destroyed and recreated: onPause() -> onSaveInstanceState() -> onStop() -> onDestroy(), followed by onCreate() -> onStart() -> onRestoreInstanceState() -> onResume() for the new instance.
+
+29. Q: What is the difference between onCreateView() and onViewCreated() in a Fragment?
+
+A:
+
+onCreateView(): You must inflate and return the Fragment's layout here.
+
+onViewCreated(): Called immediately after onCreateView(). This is the safe place to interact with the created view hierarchy.
+
+30. Q: What is a memory leak? Give a classic example of how an Activity can be leaked.
+
+A:
+A memory leak occurs when an object is no longer needed but cannot be garbage collected because another object holds a reference to it. A classic example is a static field holding a reference to an Activity context.
+
+31. Q: What is the difference between an Application Context and an Activity Context?
+
+A:
+
+Activity Context: Tied to the Activity lifecycle. Use for UI operations.
+
+Application Context: Tied to the application lifecycle. Use for long-lived objects or singletons to avoid leaking Activities.
+
+32. Q: Compare and contrast Service, Foreground Service, and WorkManager.
+
+A:
+
+Service: Base component for background work. Heavily restricted in modern Android.
+
+Foreground Service: A Service for user-aware tasks (e.g., music). Must show a persistent notification.
+
+WorkManager: The modern, recommended library for deferrable and guaranteed background work. It's constraint-aware and battery-efficient.
+
+33. Q: What is an OkHttp Interceptor and what are two common use cases for it?
+
+A:
+An Interceptor is a mechanism to observe, modify, or short-circuit requests and responses. Common uses are:
+
+Logging: Using HttpLoggingInterceptor for debugging.
+
+Adding Headers: Adding an Authorization token to every request.
+
+34. Q: What are the three main annotations used in the Room persistence library?
+
+A:
+
+@Entity: Marks a data class as a database table.
+
+@Dao: Marks an interface as a Data Access Object for defining queries.
+
+@Database: Marks an abstract class as the main database holder.
+
+Advanced / Scenario-Based Questions
+(Answers for this section are in Part 4)
+
+Part 4: Advanced / Tough Interview Questions & Answers
+Advanced Kotlin: Coroutines & Flow
+1. Q: Imagine a CoroutineScope where you launch a parent Job (jobA). Inside jobA, you launch two child jobs, jobB and jobC. If jobC is launched within a supervisorScope { ... } block and it fails with an exception, what is the final state of jobA, jobB, and jobC?
+
+A:
+
+jobC: Fails. The exception is thrown.
+
+jobB: Continues running and completes normally.
+
+jobA: Continues running and completes normally.
+
+Explanation: The supervisorScope creates an exception boundary. The failure of jobC is caught by the supervisorScope's SupervisorJob, which handles the exception but does not propagate it upwards to its parent (jobA). Therefore, jobA and its other child, jobB, are completely unaffected by jobC's failure.
+
+2. Q: Why can't a CoroutineExceptionHandler catch a CancellationException?
+
+A:
+A CoroutineExceptionHandler is designed to handle unexpected, terminal failures. CancellationException is not considered an error; it's a normal, expected signal that a coroutine was cancelled. The coroutine machinery uses it for cleanup and to stop execution. If the handler caught it, it would interfere with the fundamental mechanism of structured concurrency and cancellation.
+
+3. Q: What were the fundamental problems with BroadcastChannel that SharedFlow was designed to solve?
+
+A:
+BroadcastChannel had two major issues:
+
+Terminal Failure: If the producer coroutine failed or closed the channel with an exception, all consumers would immediately fail with the same exception. There was no way to recover. SharedFlow is not tied to a specific scope and does not have a "terminal" state.
+
+No Backpressure Support: It was a hot stream that would either suspend the sender or drop values if the buffer was full, but it had no mechanism for the collector to signal that it was overwhelmed. SharedFlow is integrated with the Flow ecosystem and respects backpressure from downstream collectors.
+
+4. Q: How would you implement a custom Flow operator called debounceUntilChanged(timeout: Long)?
+
+A:
+This is a complex operator. A good approach would be to use transformLatest. This operator cancels the previous block's execution as soon as a new value arrives. We can use this to our advantage.
+
+fun <T> Flow<T>.debounceUntilChanged(timeout: Long): Flow<T> = transformLatest { value ->
+    emit(value) // Emit the first value immediately
+    delay(timeout) // Ignore subsequent values for the timeout duration
+}
+
+When a new value arrives in the upstream flow, transformLatest cancels the previous delay and starts a new block, emitting the new value and starting a new delay.
+
+5. Q: Explain backpressure in Flow and the strategies offered by buffer(), conflate(), and collectLatest().
+
+A:
+Backpressure is when a consumer is slower than the producer. Flow is sequential by default, so the producer waits for the consumer. These operators change that:
+
+buffer(): Runs the producer concurrently in a separate coroutine, storing emitted values in a buffer (channel) so the producer doesn't have to wait.
+
+conflate(): A form of buffering that only stores the most recent value, dropping intermediate ones if the consumer is slow.
+
+collectLatest(): If a new value arrives while the previous one is still being processed by the collector's block, it cancels the processing of the old value and restarts the block with the new value.
+
+6. Q: You need to wrap a callback-based API into a Flow. What is callbackFlow and how does awaitClose work?
+
+A:
+callbackFlow is a flow builder specifically designed for this purpose. It allows you to emit values from outside the coroutine (from the callback).
+
+awaitClose is a mandatory suspending block that you put at the end of your callbackFlow builder. The code inside awaitClose is executed when the flow's consumer is cancelled. This is the perfect place to unregister the listener or callback to prevent memory leaks.
+
+7. Q: Describe a scenario for a Mutex vs. a Semaphore.
+
+A:
+
+Mutex (Mutual Exclusion): Use when you need to protect a critical section of code to ensure only one coroutine can execute it at a time. Scenario: A function that updates a shared counter variable. mutex.withLock { counter++ } prevents race conditions.
+
+Semaphore: Use when you want to limit the number of concurrent coroutines accessing a resource. Scenario: You are downloading images from a server that only allows 3 concurrent connections. You would create a Semaphore(permits = 3) and have each download coroutine call semaphore.withPermit { ... }.
+
+8. Q: What happens if you call two terminal operators on the same Flow instance?
+
+A:
+Because Flow is cold, each terminal operator starts a new, independent execution of the producer code. If you have myFlow.first() followed by myFlow.toList(), the producer will run once to get the first element, and then it will run again from the beginning to collect all elements for the list.
+
+9. Q: A StateFlow is updated with A, B, and C. A slow collector is processing A. What values will it receive?
+
+A:
+The collector is only guaranteed to receive the final value, C. StateFlow is conflated, meaning it only cares about delivering the most recent state. While the collector is busy with A, values B and C will update the state, but by the time the collector is ready for the next value, only the latest one (C) is relevant.
+
+10. Q: How would you use the select expression to react to the first of three Flows?
+
+A:
+The select expression allows you to await multiple suspending operations and choose the first one that completes. You can use it with the onEach operator on each flow and the first() terminal operator.
+
+select<Unit> {
+    flow1.onEach { value -> println("Flow 1 wins with $value") }.first()
+    flow2.onEach { value -> println("Flow 2 wins with $value") }.first()
+    flow3.onEach { value -> println("Flow 3 wins with $value") }.first()
+}
+
+This will launch all three, and as soon as one of them emits a value, its onEach block will execute, the select will complete, and the other two flow collections will be cancelled.
+
+Advanced Jetpack Compose
+1. Q: What is a CompositionLocal and when is it a better solution than parameter passing?
+
+A:
+A CompositionLocal is a tool for passing data implicitly down through the composition tree without having to pass it as an explicit parameter at every level. It's best used for broad, tree-wide concerns. Use Case: Material Theming. MaterialTheme.colors, MaterialTheme.typography, etc., are provided via CompositionLocal. It would be impractical to pass the Colors object to every single composable. The downside of overusing it is that it creates implicit dependencies, making code harder to reason about.
+
+2. Q: What is SubcomposeLayout and what problem does it solve?
+
+A:
+SubcomposeLayout is a low-level layout primitive that allows you to measure and lay out children during the layout phase of a parent, not just during the composition phase. This is useful when the measurement of one child depends on the measurement of another. Example: Scaffold. It needs to measure the content of the screen first to know where to place the FloatingActionButton (e.g., to avoid the BottomAppBar).
+
+3. Q: Is data class User(val id: String, val friends: List<User>) stable for Compose? Why or why not?
+
+A:
+No, it is not considered stable. While id is a stable String, the standard Kotlin List is a mutable interface. The Compose compiler cannot guarantee that the contents of the list won't change, so it marks the User class as unstable to be safe. To fix this, you should use an explicitly immutable collection, like ImmutableList from the kotlinx.collections.immutable library.
+
+4. Q: How does the Modifier.Node API improve performance over older stateful modifier approaches?
+
+A:
+The Modifier.Node system creates a dedicated tree of Modifier.Node instances that parallels the layout node tree. This is more performant because:
+
+It avoids excessive object allocations. The nodes can be reused and have their state changed directly.
+
+It avoids re-running complex recomposition scopes. Changes can be localized to the specific node, bypassing the need for recomposition of the composable that applied the modifier.
+
+5. Q: When a state variable read by a Column's content lambda changes, does the Column function itself re-execute, or only its content lambda?
+
+A:
+Only the content lambda re-executes. Compose is highly optimized. It doesn't re-run the entire Column function. It identifies the smallest "recomposition scope" that reads the changed state—in this case, the content block—and only re-invokes that specific part of the code.
+
+6. Q: derivedStateOf vs. remember(key). Which is more efficient for showing a "Scroll to Top" button after scrolling past 5 items, and why?
+
+A:
+derivedStateOf is more efficient.
+
+remember(lazyListState.firstVisibleItemIndex) would re-calculate its value on every single scroll event where the index changes.
+
+derivedStateOf { lazyListState.firstVisibleItemIndex > 5 } is smarter. It only triggers a recomposition of its readers when the result of the calculation changes (i.e., when the value flips from false to true at item 6, and from true to false at item 5). It avoids recomposition for all the intermediate scroll events.
+
+7. Q: What are intrinsic measurements in the Compose Layout phase?
+
+A:
+Intrinsic measurements allow a parent to measure its children before committing to a final size. It's a way for a child to tell its parent "here's how big I'd like to be." minIntrinsicWidth, for example, asks the child for the minimum width at which it can correctly display its content. This is useful for components like Row where one child might need to match the height of another, taller child.
+
+8. Q: How does LazyColumn improve scroll performance?
+
+A:
+LazyColumn improves performance by being "lazy." It only composes, measures, and draws the items that are currently visible (or nearly visible) in the viewport. As the user scrolls, it recycles the composables for items that scroll off-screen and uses them for new items that scroll on-screen, avoiding the massive cost of composing an entire list of thousands of items at once.
+
+9. Q: Walk through the steps of creating a simple custom Layout composable.
+
+A:
+
+Define the Layout composable, which takes a content lambda.
+
+Inside the Layout's measure lambda, you receive a list of measurables (the children) and constraints (from the parent).
+
+You iterate through the measurables and call .measure(constraints) on each one to get a placeable. This tells you how big each child wants to be.
+
+You then determine the size of your custom layout itself based on the sizes of the placeables.
+
+Finally, you call the layout(width, height) function. Inside its lambda, you iterate through your placeables and call .placeRelative(x, y) on each one to position them within your layout.
+
+10. Q: What is the difference between the main Composition and a Subcomposition?
+
+A:
+The main Composition is the primary UI tree of your app. A Subcomposition is a separate, nested composition tree that is created and managed independently. It's a powerful tool for building UI that is logically separate from the main hierarchy, even if it's displayed on top of it. Components like Dialog and Popup use subcomposition to render their content in a new window without interfering with the main UI's recomposition scopes.
+
+Advanced Core Android & Architecture
+1. Q: Explain the four Activity launch modes.
+
+A:
+
+standard: Default. A new instance of the Activity is created in the task every time.
+
+singleTop: If an instance of the Activity already exists at the top of the back stack, the system routes the intent to that instance through onNewIntent() instead of creating a new one.
+
+singleTask: The system creates the activity at the root of a new task or brings an existing task with it to the foreground. If an instance already exists anywhere in the system, that instance is brought to the front and any activities on top of it are cleared. Ideal for "Home" or launcher screens.
+
+singleInstance: Same as singleTask, but the activity is the only activity in its task. Any activities it launches are created in a separate task. Ideal for highly isolated screens like an incoming call UI.
+
+2. Q: Explain how Android's main thread works using Looper, Handler, and HandlerThread.
+
+A:
+
+Looper: A class that continuously runs a message loop for a thread. The main UI thread has a Looper by default.
+
+MessageQueue: The Looper manages a MessageQueue that holds tasks (as Message or Runnable objects).
+
+Handler: An object that allows you to post Messages or Runnables to a specific Looper's MessageQueue. A Handler created on the main thread will post tasks to the main thread's queue.
+
+HandlerThread: A helper class that creates a background thread that has its own Looper, allowing it to process a queue of messages sequentially in the background.
+
+3. Q: What is memory churn and how would you identify it?
+
+A:
+Memory churn is the rapid creation and garbage collection of a large number of short-lived objects. While GC is normal, excessive churn can cause the GC to run frequently, pausing the app for short periods and leading to UI stutter or "jank." You can identify it using the Android Studio Memory Profiler. Look for a "sawtooth" pattern in the memory allocation graph, where memory usage rapidly increases and then drops sharply during GC events.
+
+4. Q: What is a scenario where you must still use onSaveInstanceState instead of a ViewModel?
+
+A:
+You must use onSaveInstanceState to survive process death. While a ViewModel survives configuration changes, it lives in the app's process. If the Android system kills your app's process while it's in the background to reclaim memory, the ViewModel is destroyed along with it. The Bundle from onSaveInstanceState, however, is preserved by the system and will be passed back to your Activity's onCreate method when the user navigates back to your app.
+
+5. Q: Explain Hilt DI Scopes. Can an @ActivityScoped object depend on a @Singleton? What about the reverse?
+
+A:
+DI Scopes define the lifecycle of a provided dependency.
+
+@Singleton: One instance for the entire application lifecycle.
+
+@ActivityScoped: One instance for the lifecycle of an Activity.
+
+@ViewModelScoped: One instance for the lifecycle of a ViewModel.
+
+A component can only depend on components with an equal or longer lifetime. Therefore, an @ActivityScoped object can depend on a @Singleton because the singleton will always outlive the activity. The reverse is not valid. A @Singleton cannot depend on an @ActivityScoped object, because the singleton lives forever, but the activity (and its scoped dependency) can be destroyed, which would lead to a dangling reference and a crash.
+
+6. Q: You need to add a non-null creation_date column to a User table in Room. What happens if you just ship the update, and how do you fix it?
+
+A:
+If you just change the @Entity and ship the update, the app will crash on launch for existing users with an IllegalStateException. This is because the database schema on their device doesn't match the schema expected by the Room code.
+
+Fix: You must provide a Migration. You would increment the database version number in your @Database annotation and then add a Migration object to the Room.databaseBuilder call.
+
+val MIGRATION_1_2 = object : Migration(1, 2) {
+    override fun migrate(database: SupportSQLiteDatabase) {
+        database.execSQL("ALTER TABLE User ADD COLUMN creation_date INTEGER NOT NULL DEFAULT 0")
+    }
+}
+// In builder: .addMigrations(MIGRATION_1_2)
+
+7. Q: What is the fundamental difference between an OkHttp Authenticator and an Interceptor for refreshing an expired auth token?
+
+A:
+
+An Interceptor is proactive. It runs on every request and response. You could build logic to check for a 401 response, but it's complex and can interfere with other interceptors.
+
+An Authenticator is reactive. It is specifically designed to be called by OkHttp only after a 401 Unauthorized response is received from the server. Its job is to attempt to refresh the token and return a new request with the updated token. OkHttp will then automatically retry that request. For handling token refreshes, the Authenticator is the correct and cleaner tool for the job.
+
+8. Q: You are asked to design a social media feed app that works seamlessly offline. Describe the architecture.
+
+A:
+I would implement an offline-first architecture using the Single Source of Truth (SSOT) pattern with the database.
+
+Database (SSOT): Use Room as the single source of truth for all UI-facing data. The UI will only ever read data from the database.
+
+Repository: The Repository layer is responsible for orchestrating data. When data is requested, it first returns the cached data from Room (as a Flow). Then, it triggers a network request using Retrofit to fetch fresh data.
+
+Data Flow: When the network request succeeds, the Repository saves the new data into the Room database. Because the UI is observing a Flow from Room, Room automatically detects the change and pushes the new list to the UI, which updates reactively.
+
+Offline Actions: For actions like posting a comment while offline, the app would save the comment to a separate "pending_actions" table in Room and use WorkManager to schedule a sync task that will execute it once network connectivity is restored.
+
+9. Q: How does a ContentProvider enforce security?
+
+A:
+A ContentProvider enforces security primarily through the AndroidManifest.xml.
+
+You can specify permissions on the provider tag itself using android:readPermission and android:writePermission. Another app must have these permissions in its manifest to access the provider.
+
+For more granular control, you can use URI permissions. By setting android:grantUriPermissions="true", you can grant temporary, one-time access to a specific piece of data to another app that doesn't have the global read/write permissions. This is often used with Intent.FLAG_GRANT_READ_URI_PERMISSION.
+
+10. Q: How does WorkManager handle coroutines and threading?
+
+A:
+WorkManager has excellent built-in support for coroutines. Instead of extending Worker, you extend CoroutineWorker.
+
+The doWork() method in CoroutineWorker is a suspend function.
+
+WorkManager provides a default background dispatcher to run this function, so you don't need to manually use withContext(Dispatchers.IO).
+
+Because doWork() is a suspend function, you can directly call other suspend functions (like those from Retrofit or Room) inside it without any extra boilerplate, making the code clean and sequential.
