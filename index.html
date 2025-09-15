@@ -570,6 +570,160 @@ fun Counter() {
             }
         };
 
+          let userNotes = [];
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const navContainer = document.getElementById('main-nav');
+            const contentContainer = document.getElementById('content-container');
+            const progressBarsContainer = document.getElementById('progress-bars');
+            
+            // --- 1. SETUP UI FROM STATIC DATA ---
+            roadmapData.modules.forEach((module) => {
+                const navItem = document.createElement('a');
+                navItem.href = `#${module.id}`;
+                navItem.className = 'nav-item block px-4 py-2 rounded-md font-medium hover:bg-slate-100';
+                navItem.textContent = module.title;
+                navItem.dataset.target = module.id;
+                navItem.dataset.type = 'roadmap';
+                navContainer.appendChild(navItem);
+
+                const contentSection = document.createElement('section');
+                contentSection.id = module.id;
+                contentSection.className = 'content-section';
+                contentSection.innerHTML = `<h2 class="text-3xl font-bold mb-2">${module.title}</h2><p class="text-slate-600 mb-8">A deep dive into ${module.title.toLowerCase()}.</p> ...`; // Simplified for brevity
+                contentContainer.appendChild(contentSection);
+            });
+            // Simplified progress bar and chart setup
+            new Chart(document.getElementById('progressChart').getContext('2d'), { type: 'radar', data: { labels: [], datasets: [] }, options: {} });
+
+
+            // --- 2. FETCH GITHUB NOTES ---
+            await fetchAndRenderGitHubNotes();
+
+
+            // --- 3. UNIFIED NAVIGATION LOGIC WITH HISTORY API ---
+            const dashboardLink = document.createElement('a');
+            dashboardLink.href = '#dashboard';
+            dashboardLink.className = 'nav-item block px-4 py-2 rounded-md font-medium';
+            dashboardLink.textContent = "Dashboard";
+            dashboardLink.dataset.target = 'dashboard';
+            dashboardLink.dataset.type = 'dashboard';
+            navContainer.prepend(dashboardLink);
+
+            const contentSections = document.querySelectorAll('.content-section');
+            const markdownViewerSection = document.getElementById('markdown-viewer-section');
+            const markdownContentDiv = document.getElementById('markdown-content');
+
+            // This function ONLY updates the view
+            function displayContent(targetId, type) {
+                contentSections.forEach(section => section.classList.remove('active'));
+                
+                if (type === 'roadmap' || type === 'dashboard') {
+                    const targetSection = document.getElementById(targetId);
+                    if(targetSection) targetSection.classList.add('active');
+                } else if (type === 'note') {
+                    const note = userNotes.find(n => n.id === targetId);
+                    if (note) {
+                        markdownContentDiv.innerHTML = marked.parse(note.markdown);
+                        markdownViewerSection.classList.add('active');
+                    }
+                }
+                
+                document.querySelectorAll('.nav-item').forEach(item => {
+                    item.classList.toggle('active', item.dataset.target === targetId);
+                });
+            }
+            
+            // This function handles clicks and updates history
+            function navigateTo(targetId, type) {
+                displayContent(targetId, type);
+                const state = { targetId, type };
+                const title = type === 'note' ? userNotes.find(n=>n.id===targetId).title : roadmapData.modules.find(m=>m.id===targetId)?.title || 'Dashboard';
+                history.pushState(state, title, `#${targetId}`);
+            }
+
+            // Listen for user clicks on nav items
+            navContainer.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetElement = e.target.closest('.nav-item');
+                if (targetElement) {
+                    const targetId = targetElement.dataset.target;
+                    const targetType = targetElement.dataset.type;
+                    navigateTo(targetId, targetType);
+                }
+            });
+
+            // Listen for back/forward button clicks
+            window.addEventListener('popstate', (e) => {
+                if (e.state) {
+                    displayContent(e.state.targetId, e.state.type);
+                } else {
+                    // If state is null, it's the initial page load state
+                    displayContent('dashboard', 'dashboard');
+                }
+            });
+
+            // --- 4. HANDLE INITIAL PAGE LOAD (DEEP LINKING) ---
+            function handleInitialLoad() {
+                const hash = window.location.hash.substring(1);
+                const navItem = document.querySelector(`.nav-item[data-target="${hash}"]`);
+
+                if (hash && navItem) {
+                    const targetId = navItem.dataset.target;
+                    const type = navItem.dataset.type;
+                    displayContent(targetId, type);
+                     history.replaceState({targetId, type}, '', `#${targetId}`);
+                } else {
+                    displayContent('dashboard', 'dashboard');
+                    history.replaceState({targetId: 'dashboard', type: 'dashboard'}, '', '#dashboard');
+                }
+            }
+            
+            async function fetchAndRenderGitHubNotes() {
+                // ... same fetch logic as before ...
+                const owner = 'Akhiay54';
+                const repo = 'Interview-Preparation';
+                const apiUrl = `https://api.github.com/repos/${owner}/${repo}/contents/`;
+                const heading = document.createElement('div');
+                heading.className = 'sidebar-heading pt-4 border-t border-slate-200 mt-4';
+                heading.textContent = 'Your GitHub Notes';
+                navContainer.appendChild(heading);
+                
+                try {
+                    const response = await fetch(apiUrl);
+                    const files = await response.json();
+                    const mdFiles = files.filter(file => file.name.endsWith('.md'));
+
+                    const notesPromises = mdFiles.map(async file => {
+                        const contentResponse = await fetch(file.download_url);
+                        const markdown = await contentResponse.text();
+                        return { id: file.name.toLowerCase().replace('.md', ''), title: file.name.replace('.md', ''), markdown: markdown };
+                    });
+                    
+                    userNotes = await Promise.all(notesPromises);
+
+                    userNotes.forEach(note => {
+                        const navItem = document.createElement('a');
+                        navItem.href = `#${note.id}`;
+                        navItem.className = 'nav-item block px-4 py-2 rounded-md font-medium hover:bg-slate-100';
+                        navItem.textContent = note.title;
+                        navItem.dataset.target = note.id;
+                        navItem.dataset.type = 'note';
+                        navContainer.appendChild(navItem);
+                    });
+                } catch (error) {
+                    console.error("Failed to fetch GitHub notes:", error);
+                    const errorItem = document.createElement('span');
+                    errorItem.className = 'px-4 text-sm text-red-500';
+                    errorItem.textContent = 'Error loading notes.';
+                    navContainer.appendChild(errorItem);
+                }
+            }
+
+            handleInitialLoad(); // Call this function to set the correct initial state.
+
+        });
+
         document.addEventListener('DOMContentLoaded', () => {
             const navContainer = document.getElementById('main-nav');
             const contentContainer = document.getElementById('content-container');
