@@ -3,9 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Android Mastery Roadmap</title>
+    <title>Android Mastery Roadmap & Notes</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body {
@@ -68,24 +69,79 @@
         .copy-btn:hover {
             background-color: #6b7280;
         }
+        .deep-dive {
+            background-color: #eef2ff;
+            border-left: 4px solid #6366f1;
+            padding: 1rem;
+            border-radius: 0.25rem;
+            margin-top: 1rem;
+        }
+        .markdown-content h1, .markdown-content h2, .markdown-content h3 {
+            font-weight: 700;
+            margin-top: 1.5em;
+            margin-bottom: 0.5em;
+            border-bottom: 1px solid #e5e7eb;
+            padding-bottom: 0.3em;
+        }
+        .markdown-content h1 { font-size: 2em; }
+        .markdown-content h2 { font-size: 1.5em; }
+        .markdown-content h3 { font-size: 1.25em; }
+        .markdown-content p {
+            line-height: 1.6;
+            margin-bottom: 1em;
+        }
+        .markdown-content ul {
+            list-style-type: disc;
+            padding-left: 2em;
+            margin-bottom: 1em;
+        }
+        .markdown-content ol {
+            list-style-type: decimal;
+            padding-left: 2em;
+            margin-bottom: 1em;
+        }
+        .markdown-content li {
+            margin-bottom: 0.5em;
+        }
+        .markdown-content code:not(pre > code) {
+          background-color: #e5e7eb;
+          padding: .2em .4em;
+          border-radius: 3px;
+        }
+        .markdown-content a {
+            color: #4f46e5;
+            text-decoration: underline;
+        }
+        .markdown-content a:hover {
+            color: #4338ca;
+        }
+        .sidebar-divider {
+            margin: 1rem 0;
+            border-top: 1px solid #e5e7eb;
+        }
+        .sidebar-heading {
+            padding: 0 1rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.5rem;
+        }
     </style>
     <!-- Chosen Palette: Slate & Indigo -->
-    <!-- Application Structure Plan: A single-page dashboard application. The main structure is a two-column layout. The left column serves as a sticky navigation menu for the main learning modules. The right column displays the content for the selected module. This structure is chosen for its clarity and ease of navigation, allowing the user to switch between complex topics without losing context. The top of the content area features a dynamic progress summary and a radar chart for a visual overview of proficiency. Each module's content is broken into expandable "topic cards," which keeps the UI clean and lets the user focus on one concept at a time. This interactive, hierarchical structure is ideal for a dense educational report like this, promoting exploration over linear consumption. -->
-    <!-- Visualization & Content Choices: 
-        1. Overall Progress Radar Chart: Report Info -> User's proficiency across all modules. Goal -> Provide a quick, holistic view of the user's skills. Viz Method -> Radar Chart (Chart.js). Interaction -> Hovering over points shows proficiency scores. Justification -> A radar chart is excellent for comparing multiple quantitative variables, making it perfect for visualizing strengths and weaknesses across different domains. Library -> Chart.js.
-        2. Module Progress Bars: Report Info -> Completion status of each module. Goal -> Motivate the user and show progress at a glance. Presentation Method -> HTML/CSS progress bar. Interaction -> Bar updates dynamically as user checks off topics. Justification -> Simple, universally understood visual for linear progress.
-        3. Topic Cards: Report Info -> Detailed explanations, code snippets, interview questions. Goal -> Organize dense information into digestible chunks. Presentation Method -> Expandable HTML divs (cards). Interaction -> Clicking a card header reveals the detailed content. Justification -> Prevents overwhelming the user with a wall of text, promoting focused learning.
-    -->
+    <!-- Application Structure Plan: A hybrid single-page application. It retains the original two-column roadmap structure with an interactive dashboard. Crucially, it now adds a new dynamic section to the sidebar. This section uses the GitHub API to fetch all .md files from a user's repository, populates them as new navigation items, and on-click, fetches the raw markdown content, converts it to HTML using marked.js, and displays it. This merges a static, mentor-guided curriculum with the user's live, personal notes for a comprehensive learning tool. -->
+    <!-- Visualization & Content Choices: The roadmap section uses a Radar Chart (Chart.js) for a skill overview and expandable cards for structured learning. The new dynamically loaded section's primary "visualization" is the well-formatted text itself, converted from markdown by marked.js. This is the most appropriate way to display the user's textual notes, respecting formatting like headers, lists, and code blocks. -->
     <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
 </head>
 <body class="bg-slate-50 text-slate-800">
 
     <div class="flex flex-col md:flex-row min-h-screen">
         <!-- Sidebar Navigation -->
-        <aside class="w-full md:w-64 bg-white shadow-md md:sticky md:top-0 md:h-screen">
+        <aside class="w-full md:w-64 bg-white shadow-md md:sticky md:top-0 md:h-screen overflow-y-auto">
             <div class="p-6">
                 <h1 class="text-2xl font-bold text-indigo-600">Android Roadmap</h1>
-                <p class="text-sm text-slate-500">Your Mentor-Guided Path</p>
+                <p class="text-sm text-slate-500">Mentor-Guided Path</p>
             </div>
             <nav id="main-nav" class="flex-grow p-4 space-y-2">
                 <!-- Navigation items will be injected here by JS -->
@@ -94,30 +150,31 @@
 
         <!-- Main Content -->
         <main class="flex-1 p-4 sm:p-6 lg:p-8">
-            <!-- Header & Progress Summary -->
-            <header id="dashboard" class="content-section active">
-                <h2 class="text-3xl font-bold mb-4">Welcome to Your Mastery Journey</h2>
-                <p class="text-slate-600 mb-8 max-w-3xl">This is your personalized, interactive guide to becoming a top-tier Android developer. I've structured this roadmap to build your skills logically, from core language features to advanced system design. We'll focus on deep understanding, practical application, and interview readiness. Select a module from the left to begin your deep dive.</p>
-                
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
-                    <div class="bg-white p-6 rounded-lg shadow">
-                        <h3 class="text-xl font-semibold mb-4">Your Skill Overview</h3>
-                        <div class="chart-container h-[40vh] max-h-[400px] w-full max-w-lg mx-auto">
-                            <canvas id="progressChart"></canvas>
+            <div id="content-container">
+                <!-- Header & Progress Summary -->
+                <header id="dashboard" class="content-section">
+                    <h2 class="text-3xl font-bold mb-4">Welcome to Your Mastery Journey</h2>
+                    <p class="text-slate-600 mb-8 max-w-3xl">This is your personalized, interactive guide to becoming a top-tier Android developer. Below, you'll also find your personal notes fetched directly from your GitHub repository. Select any topic from the left to begin.</p>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+                        <div class="bg-white p-6 rounded-lg shadow">
+                            <h3 class="text-xl font-semibold mb-4">Your Skill Overview</h3>
+                            <div class="chart-container h-[40vh] max-h-[400px] w-full max-w-lg mx-auto">
+                                <canvas id="progressChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="bg-white p-6 rounded-lg shadow">
+                             <h3 class="text-xl font-semibold mb-4">Module Progress</h3>
+                             <div id="progress-bars" class="space-y-4">
+                                <!-- Progress bars will be injected here by JS -->
+                             </div>
                         </div>
                     </div>
-                    <div class="bg-white p-6 rounded-lg shadow">
-                         <h3 class="text-xl font-semibold mb-4">Module Progress</h3>
-                         <div id="progress-bars" class="space-y-4">
-                            <!-- Progress bars will be injected here by JS -->
-                         </div>
-                    </div>
-                </div>
-            </header>
-            
-            <!-- Content sections for each module -->
-            <div id="content-container">
-                 <!-- Module content will be injected here by JS -->
+                </header>
+                <!-- Content sections for roadmap modules will be injected here -->
+                <section id="markdown-viewer-section" class="content-section bg-white p-6 sm:p-8 rounded-lg shadow-md">
+                    <div id="markdown-content" class="markdown-content"></div>
+                </section>
             </div>
         </main>
     </div>
@@ -142,23 +199,14 @@
                                     <li><strong>Delegates:</strong> A powerful way to implement composition over inheritance. We'll look at standard delegates like 'lazy', 'observable', and custom delegates.</li>
                                     <li><strong>Inline Functions:</strong> Understand how 'inline' can reduce overhead by avoiding object allocation for lambdas, especially with higher-order functions. Key modifiers are 'noinline' and 'crossinline'.</li>
                                 </ul>
-                                <h4 class="font-semibold mt-4 mb-2 text-indigo-600">Practical Code Snippet (Sealed Class for UI State):</h4>
-                                <pre><code class="language-kotlin">sealed class UiState<out T> {
-    object Loading : UiState<Nothing>()
-    data class Success<T>(val data: T) : UiState<T>()
-    data class Error(val message: String) : UiState<Nothing>()
-}
-
-fun handleState(state: UiState<List<String>>) {
-    when (state) {
-        is UiState.Loading -> println("Show loading spinner...")
-        is UiState.Success -> println("Display data: \${state.data}")
-        is UiState.Error -> println("Show error: \${state.message}")
-    }
-}</code></pre>
                                 <h4 class="font-semibold mt-4 mb-2 text-red-600">Interview Pitfall & Trick Questions:</h4>
                                 <p><strong>Interviewer:</strong> "When would you use 'noinline' with an inline function?"</p>
                                 <p><strong>Your Answer:</strong> "You'd use 'noinline' when an inline function accepts multiple lambda parameters, and you want to prevent one of them from being inlined. This is useful if a lambda is being stored or passed to another context where it needs to exist as a real Function object, while still getting the performance benefit of inlining for the other lambdas."</p>
+                                <div class="deep-dive">
+                                    <h5 class="font-bold text-indigo-700">Interview Deep Dive: Classic Questions</h5>
+                                    <p class="mt-2"><strong>Q: What is the difference between 'val' and 'const val' in Kotlin?</strong></p>
+                                    <p class="mt-1"><strong>A:</strong> Both are read-only, but their initialization time differs. A 'val' is initialized at runtime, meaning it can be assigned a value from a function call or a class constructor. A 'const val' is a compile-time constant. Its value must be known at compile time and it can only be a primitive type or a String. You use 'const val' for true constants, like a base URL or a database name, which offers a minor performance benefit.</p>
+                                </div>
                                 <h4 class="font-semibold mt-4 mb-2 text-green-600">Exercise:</h4>
                                 <p>Create an extension function for the 'String' class called 'isEmail' that returns 'true' if the string is a valid email address and 'false' otherwise. Use a simple regex for validation.</p>
                             `
@@ -174,9 +222,13 @@ fun handleState(state: UiState<List<String>>) {
                                     <li><strong>Collections Framework:</strong> Know the difference between 'ArrayList' and 'LinkedList' (and when to use each). Understand 'HashMap' internals (hashing, collisions, load factor). Be ready to discuss thread-safe collections like 'ConcurrentHashMap'.</li>
                                     <li><strong>Memory Management:</strong> How the JVM/ART garbage collector works (Generational GC, Mark and Sweep). This is critical for understanding and fixing memory leaks in Android.</li>
                                 </ul>
-                                <h4 class="font-semibold mt-4 mb-2 text-red-600">Interview Pitfall & Trick Questions:</h4>
-                                <p><strong>Interviewer:</strong> "Explain the difference between 'final', 'finally', and 'finalize'."</p>
-                                <p><strong>Your Answer:</strong> "'final' is a modifier for classes (cannot be subclassed), methods (cannot be overridden), and variables (cannot be reassigned). 'finally' is a block in a try-catch statement that always executes, regardless of whether an exception was thrown. 'finalize' is a method called by the garbage collector just before an object is reclaimed, but its use is strongly discouraged due to its unpredictability."</p>
+                                <div class="deep-dive">
+                                    <h5 class="font-bold text-indigo-700">Interview Deep Dive: Classic Questions</h5>
+                                    <p class="mt-2"><strong>Q: Explain the difference between 'final', 'finally', and 'finalize'.</strong></p>
+                                    <p class="mt-1"><strong>A:</strong> This is a classic Java question. 'final' is a modifier for classes (cannot be subclassed), methods (cannot be overridden), and variables (value cannot be changed once assigned). 'finally' is a block in a try-catch statement that always executes, regardless of whether an exception was thrown. It's used for cleanup code like closing streams. 'finalize' is a method called by the garbage collector just before an object is reclaimed. Its use is strongly discouraged because it's not guaranteed to run and is unpredictable.</p>
+                                    <p class="mt-2"><strong>Q: What is the difference between an abstract class and an interface?</strong></p>
+                                    <p class="mt-1"><strong>A:</strong> An 'interface' can only contain abstract method declarations (and default methods in Java 8+). A class can implement multiple interfaces. An 'abstract class' can have both abstract and concrete methods, as well as member variables. A class can only extend one abstract class. You use an interface to define a contract or a capability (e.g., 'Clickable', 'Serializable'), and an abstract class to provide a common base with some shared implementation for a group of related classes.</p>
+                                </div>
                                 <h4 class="font-semibold mt-4 mb-2 text-green-600">Exercise:</h4>
                                 <p>Write a simple producer-consumer problem implementation in Java using 'wait()' and 'notifyAll()' on a shared object. This is a classic concurrency problem.</p>
                             `
@@ -191,7 +243,6 @@ fun handleState(state: UiState<List<String>>) {
                                     <li><strong>Build Variants & Flavors:</strong> How to configure different versions of your app (e.g., free vs. paid, staging vs. production) from the same codebase.</li>
                                     <li><strong>Dependency Management:</strong> The difference between 'implementation', 'api', and 'compileOnly'. Misusing 'api' can significantly slow down builds in multi-module projects.</li>
                                     <li><strong>Build Optimization:</strong> Techniques like using the build cache, parallel execution, and the build scan to diagnose bottlenecks.</li>
-                                    <li><strong>Custom Tasks & Plugins:</strong> Writing your own Gradle tasks in Groovy or Kotlin to automate parts of your workflow.</li>
                                 </ul>
                                 <h4 class="font-semibold mt-4 mb-2 text-red-600">Interview Pitfall & Trick Questions:</h4>
                                 <p><strong>Interviewer:</strong> "My multi-module project has slow incremental build times. I change one small thing in a 'core' library module, and many other modules need to recompile. What's the likely cause?"</p>
@@ -215,11 +266,12 @@ fun handleState(state: UiState<List<String>>) {
                                     <li><strong>Activity Lifecycle:</strong> Not just the order ('onCreate', 'onStart', 'onResume'), but <em>why</em> and <em>when</em>. What happens during a configuration change (like screen rotation)? When is 'onSaveInstanceState' called versus 'onStop'?</li>
                                     <li><strong>Fragment Lifecycle:</strong> It's more complex because it's tied to the host Activity's lifecycle and has its own view lifecycle ('onCreateView', 'onViewCreated', 'onDestroyView'). Understand the critical difference between the Fragment's lifecycle and its view's lifecycle.</li>
                                     <li><strong>ViewModel Lifecycle:</strong> Understand that a ViewModel's scope is tied to its owner (Activity or Fragment). It survives configuration changes, making it the correct place to hold UI state. Its 'onCleared()' method is your last chance to clean up resources.</li>
-                                    <li><strong>The Back Stack:</strong> How 'addToBackStack()' affects the Fragment lifecycle. What happens when you pop a Fragment?</li>
                                 </ul>
-                                <h4 class="font-semibold mt-4 mb-2 text-red-600">Interview Pitfall & Trick Questions:</h4>
-                                <p><strong>Interviewer:</strong> "An Activity has two fragments, A and B. I replace Fragment A with Fragment C using a FragmentTransaction and call 'addToBackStack()'. What lifecycle methods are called on Fragments A and B?"</p>
-                                <p><strong>Your Answer:</strong> "For Fragment A, its view will be destroyed, so 'onPause', 'onStop', 'onDestroyView' will be called. However, the Fragment instance itself is NOT destroyed; 'onDestroy' and 'onDetach' are NOT called because it's on the back stack. For Fragment B, nothing happens. It remains in its current state because it was not part of the transaction."</p>
+                                <div class="deep-dive">
+                                    <h5 class="font-bold text-indigo-700">Interview Deep Dive: Classic Questions</h5>
+                                    <p class="mt-2"><strong>Q: What's the difference between 'onPause()' and 'onStop()'?</strong></p>
+                                    <p class="mt-1"><strong>A:</strong> 'onPause()' is called when the Activity is no longer in the foreground but is still partially visible (e.g., a dialog appears on top of it). 'onStop()' is called when the Activity is no longer visible to the user at all (e.g., the user navigates to another activity or presses the home button). You should do lightweight cleanup in 'onPause()' and more intensive cleanup (like saving state or unregistering listeners) in 'onStop()'.</p>
+                                </div>
                                 <h4 class="font-semibold mt-4 mb-2 text-green-600">Exercise:</h4>
                                 <p>Create an app with a single Activity. Add two buttons: "Add Fragment" and "Replace Fragment". Log every single lifecycle callback for the Activity, Fragments, and a shared ViewModel to the Logcat. Observe the differences, especially during rotation and back presses.</p>
                             `
@@ -230,14 +282,15 @@ fun handleState(state: UiState<List<String>>) {
                                 <p class="mb-4">Intents are the 'glue' of the Android OS, enabling communication between components. Jetpack Navigation is the modern, structured way to handle all in-app navigation, providing a single source of truth.</p>
                                 <h4 class="font-semibold mt-4 mb-2 text-indigo-600">Key Concepts:</h4>
                                 <ul class="list-disc list-inside space-y-2 mb-4">
-                                    <li><strong>Explicit vs. Implicit Intents:</strong> Explicit intents target a specific component (e.g., 'startActivity(Intent(this, DetailActivity::class.java))'). Implicit intents declare an action to be performed, letting the system find a component that can handle it (e.g., opening a web page or sharing text).</li>
-                                    <li><strong>Jetpack Navigation Component:</strong> The standard for modern apps. It involves a Navigation Graph (an XML or Compose resource), a 'NavHost' (the container for your destinations), and a 'NavController' (the object that manages navigation actions).</li>
-                                    <li><strong>Navigation in Compose:</strong> Uses a 'NavHost' composable and a 'rememberNavController()' to manage screen transitions in a pure-Compose app. Routes are simple strings.</li>
-                                    <li><strong>Passing Arguments:</strong> How to safely pass data between destinations using Safe Args (for XML) or by defining arguments in your route strings in Compose.</li>
+                                    <li><strong>Explicit vs. Implicit Intents:</strong> Explicit intents target a specific component. Implicit intents declare an action to be performed, letting the system find a component that can handle it.</li>
+                                    <li><strong>Jetpack Navigation Component:</strong> The standard for modern apps. It involves a Navigation Graph, a 'NavHost', and a 'NavController'.</li>
+                                    <li><strong>Navigation in Compose:</strong> Uses a 'NavHost' composable and a 'rememberNavController()' to manage screen transitions. Routes are simple strings.</li>
                                 </ul>
-                                <h4 class="font-semibold mt-4 mb-2 text-red-600">Interview Pitfall & Trick Questions:</h4>
-                                <p><strong>Interviewer:</strong> "You navigate from screen A to screen B. The user presses the home button, then opens the app again from the recents list. Explain the task stack and what happens to your activities."</p>
-                                <p><strong>Your Answer:</strong> "When you navigate A -> B, Activity B is placed on top of A in the app's task stack. Pressing home moves the entire task to the background. When the user reopens the app, the system brings the existing task to the foreground with its stack intact. Activity B will be on top and its 'onRestart()' and 'onStart()' methods will be called. The state is preserved."</p>
+                                <div class="deep-dive">
+                                    <h5 class="font-bold text-indigo-700">Interview Deep Dive: Classic Questions</h5>
+                                    <p class="mt-2"><strong>Q: What are Intent Flags and can you give an example?</strong></p>
+                                    <p class="mt-1"><strong>A:</strong> Intent Flags are used to modify the behavior of an Activity when it's launched. A common example is 'FLAG_ACTIVITY_CLEAR_TOP'. If you launch an Activity that's already in the task stack using this flag, the system will clear all other activities on top of it and bring that existing instance to the foreground. This is useful for "up" navigation or returning to a home screen without creating a new instance.</p>
+                                </div>
                                 <h4 class="font-semibold mt-4 mb-2 text-green-600">Exercise:</h4>
                                 <p>Create a two-screen app using Navigation for Compose. The first screen has an input field. The user types their name, clicks a button, and it navigates to the second screen, passing the name as an argument to be displayed in a greeting message.</p>
                             `
@@ -248,14 +301,15 @@ fun handleState(state: UiState<List<String>>) {
                                 <p class="mb-4">Properly managing resources is fundamental to building a flexible and maintainable app that looks good on any device. This includes everything from strings and images to defining a consistent look and feel with a theme.</p>
                                 <h4 class="font-semibold mt-4 mb-2 text-indigo-600">Key Concepts:</h4>
                                 <ul class="list-disc list-inside space-y-2 mb-4">
-                                    <li><strong>Resource Qualifiers:</strong> The power of the 'res' directory comes from qualifiers. You can provide different resources for different screen densities ('-mdpi', '-xhdpi'), languages ('-es', '-fr'), or modes ('-night'). The system automatically selects the correct one.</li>
-                                    <li><strong>Strings, Dimensions, Colors:</strong> Never hardcode these. Always define them in XML files ('strings.xml', 'dimens.xml', 'colors.xml'). This is essential for localization and consistent design.</li>
-                                    <li><strong>Theming in Compose:</strong> Compose uses a 'MaterialTheme' composable. You define your app's color palette, typography, and shapes in a 'Theme.kt' file. You then access these theme values throughout your UI (e.g., 'MaterialTheme.colors.primary', 'MaterialTheme.typography.h1').</li>
-                                    <li><strong>Light & Dark Theme:</strong> Jetpack Compose makes this easy. The 'MaterialTheme' composable can take different color palettes based on the system setting ('isSystemInDarkTheme()').</li>
+                                    <li><strong>Resource Qualifiers:</strong> The power of the 'res' directory comes from qualifiers for screen density ('-mdpi'), language ('-es'), or mode ('-night').</li>
+                                    <li><strong>Strings, Dimensions, Colors:</strong> Never hardcode these. Always define them in XML files. This is essential for localization and consistent design.</li>
+                                    <li><strong>Theming in Compose:</strong> Compose uses a 'MaterialTheme' composable. You define your app's color palette, typography, and shapes in a 'Theme.kt' file.</li>
                                 </ul>
-                                <h4 class="font-semibold mt-4 mb-2 text-red-600">Interview Pitfall & Trick Questions:</h4>
-                                <p><strong>Interviewer:</strong> "What's the difference between 'dp', 'sp', and 'px'?"</p>
-                                <p><strong>Your Answer:</strong> "'px' stands for pixels, which is an absolute physical pixel on the screen. It should be avoided because it doesn't scale across different screen densities. 'dp' or 'dip' is a Density-Independent Pixel. It's an abstract unit that scales to have a uniform dimension across devices of different densities. It should be used for layout sizes. 'sp' is a Scale-Independent Pixel. It's like 'dp' but also scales based on the user's font size preference in their system settings. It should always be used for font sizes to ensure accessibility."</p>
+                                <div class="deep-dive">
+                                    <h5 class="font-bold text-indigo-700">Interview Deep Dive: Classic Questions</h5>
+                                    <p class="mt-2"><strong>Q: What is the difference between 'dp', 'sp', and 'px'?</strong></p>
+                                    <p class="mt-1"><strong>A:</strong> 'px' is an absolute physical pixel on the screen and should be avoided. 'dp' (Density-Independent Pixel) is an abstract unit that scales to have a uniform dimension across devices with different screen densities; use it for layout sizes. 'sp' (Scale-Independent Pixel) is like 'dp' but also scales based on the user's font size preference in system settings; always use it for font sizes to ensure accessibility.</p>
+                                </div>
                                 <h4 class="font-semibold mt-4 mb-2 text-green-600">Exercise:</h4>
                                 <p>In a Compose project, modify the 'Theme.kt' file to define a custom color palette for both light and dark themes. Create a simple screen with text and buttons that use these theme colors. Verify that the UI correctly switches colors when you toggle the device's dark mode.</p>
                             `
@@ -266,15 +320,16 @@ fun handleState(state: UiState<List<String>>) {
                                 <p class="mb-4">Apps need to save data. Understanding the modern, recommended options for data persistence is crucial for building robust, offline-capable applications.</p>
                                 <h4 class="font-semibold mt-4 mb-2 text-indigo-600">Key Concepts:</h4>
                                 <ul class="list-disc list-inside space-y-2 mb-4">
-                                    <li><strong>Room:</strong> Part of Jetpack, Room is an abstraction layer over SQLite that reduces boilerplate and provides compile-time verification of SQL queries. It's the standard for storing large amounts of structured, relational data. Key components are the 'Entity', 'DAO' (Data Access Object), and 'Database'.</li>
-                                    <li><strong>Data Access Objects (DAO):</strong> This is where you define your database queries using annotations. Room can return data from DAOs as 'Flow', making it easy to build reactive UIs that update automatically when the database changes.</li>
-                                    <li><strong>Jetpack DataStore:</strong> The modern replacement for 'SharedPreferences'. It provides two implementations: Preferences DataStore (for simple key-value pairs) and Proto DataStore (for typed objects using Protocol Buffers). It is fully asynchronous (using Coroutines and Flow) and safer to call on the UI thread.</li>
+                                    <li><strong>Room:</strong> Part of Jetpack, Room is an abstraction layer over SQLite that reduces boilerplate and provides compile-time verification of SQL queries. It's the standard for storing large amounts of structured data.</li>
+                                    <li><strong>Jetpack DataStore:</strong> The modern replacement for 'SharedPreferences'. It is fully asynchronous (using Coroutines and Flow) and safer to call on the UI thread.</li>
                                 </ul>
-                                <h4 class="font-semibold mt-4 mb-2 text-red-600">Interview Pitfall & Trick Questions:</h4>
-                                <p><strong>Interviewer:</strong> "Why is DataStore preferred over SharedPreferences?"</p>
-                                <p><strong>Your Answer:</strong> "DataStore improves on SharedPreferences in several key ways. First, it's fully asynchronous using Kotlin Coroutines and Flow, so it's safe to use from the main thread without blocking it. SharedPreferences has synchronous APIs that can cause UI jank. Second, DataStore provides transactionality and signals errors, making it more robust. SharedPreferences can fail silently. Finally, Proto DataStore provides type safety, which is not possible with SharedPreferences, helping to prevent runtime errors."</p>
+                                <div class="deep-dive">
+                                    <h5 class="font-bold text-indigo-700">Interview Deep Dive: Classic Questions</h5>
+                                    <p class="mt-2"><strong>Q: Why is DataStore preferred over SharedPreferences?</strong></p>
+                                    <p class="mt-1"><strong>A:</strong> DataStore improves on SharedPreferences in several key ways. First, it's fully asynchronous using Kotlin Coroutines and Flow, so it's safe to use from the main thread without blocking it. SharedPreferences has synchronous APIs that can cause UI jank. Second, DataStore provides transactionality and signals errors, making it more robust. SharedPreferences can fail silently. Finally, Proto DataStore provides type safety, which is not possible with SharedPreferences, helping to prevent runtime errors.</p>
+                                </div>
                                 <h4 class="font-semibold mt-4 mb-2 text-green-600">Exercise:</h4>
-                                <p>Create a simple 'Note' entity (id, title, content). Use Room to create a database for these notes. Implement a DAO with methods to insert a note and get all notes as a 'Flow<List<Note>>'.</p>
+                                <p>Create a simple 'Note' entity (id, title, content). Use Room to create a database for these notes. Implement a DAO with methods to insert a note and get all notes as a 'Flow&lt;List&lt;Note&gt;&gt;'.</p>
                             `
                         },
                         {
@@ -283,14 +338,15 @@ fun handleState(state: UiState<List<String>>) {
                                 <p class="mb-4">User privacy is paramount. Modern Android has shifted to a runtime permission model and restricted storage access to protect users. You must know how to work within these constraints.</p>
                                 <h4 class="font-semibold mt-4 mb-2 text-indigo-600">Key Concepts:</h4>
                                 <ul class="list-disc list-inside space-y-2 mb-4">
-                                    <li><strong>Runtime Permissions:</strong> For dangerous permissions (like Camera, Location, Contacts), you must request them from the user while the app is running. You can't just declare them in the manifest.</li>
-                                    <li><strong>The Request Flow:</strong> The standard flow is: 1. Check if you already have the permission. 2. If not, check if you should show a rationale (if the user previously denied it). 3. If needed, show the rationale explaining why you need the permission. 4. Launch the system permission request dialog. 5. Handle the user's decision (granted or denied) in a callback.</li>
-                                    <li><strong>Scoped Storage:</strong> Starting with Android 10, apps have restricted access to external storage. By default, an app can only access its own app-specific directory and shared media collections (like Photos or Music) via the MediaStore API. Direct, broad file path access is no longer allowed for most use cases.</li>
-                                    <li><strong>Storage Access Framework (SAF):</strong> To let the user select a file or directory outside your app's sandbox (e.g., from Google Drive or a Downloads folder), you must use the Storage Access Framework. This involves launching an intent that opens a system file picker.</li>
+                                    <li><strong>Runtime Permissions:</strong> For dangerous permissions (like Camera, Location), you must request them from the user while the app is running.</li>
+                                    <li><strong>The Request Flow:</strong> Check permission, show rationale if needed, launch system request, handle result.</li>
+                                    <li><strong>Scoped Storage:</strong> Since Android 10, apps have restricted access to external storage. By default, an app can only access its own app-specific directory and shared media collections.</li>
                                 </ul>
-                                <h4 class="font-semibold mt-4 mb-2 text-red-600">Interview Pitfall & Trick Questions:</h4>
-                                <p><strong>Interviewer:</strong> "My app needs to save a photo that the user just took with the in-app camera. Where should I save it, and do I need any special permissions on Android 11+?"</p>
-                                <p><strong>Your Answer:</strong> "The best place to save it is in the shared media collections using the MediaStore API. You would save it to the 'MediaStore.Images.Media.EXTERNAL_CONTENT_URI'. On Android 10 and above, because of Scoped Storage, you do NOT need the WRITE_EXTERNAL_STORAGE permission to add files to the media collection. Your app is given 'contributory' access by default. You only need the permission if you want to modify or delete media files created by *other* apps."</p>
+                                 <div class="deep-dive">
+                                    <h5 class="font-bold text-indigo-700">Interview Deep Dive: Classic Questions</h5>
+                                    <p class="mt-2"><strong>Q: My app needs to save a photo that the user just took. Where should I save it, and do I need any special permissions on Android 11+?</strong></p>
+                                    <p class="mt-1"><strong>A:</strong> The best place to save it is in the shared media collections using the MediaStore API. You would save it to the 'MediaStore.Images.Media.EXTERNAL_CONTENT_URI'. On Android 10 and above, because of Scoped Storage, you do NOT need the WRITE_EXTERNAL_STORAGE permission to add files to the media collection. Your app is given 'contributory' access by default. You only need the permission if you want to modify or delete media files created by *other* apps.</p>
+                                </div>
                                 <h4 class="font-semibold mt-4 mb-2 text-green-600">Exercise:</h4>
                                 <p>In a Compose app, use the Accompanist Permissions library to create a screen that checks for the CAMERA permission. If permission is not granted, it should show a button that says "Request Camera Permission". If granted, it should show text that says "Camera permission granted!".</p>
                             `
@@ -304,42 +360,16 @@ fun handleState(state: UiState<List<String>>) {
                         {
                             title: 'Dagger Hilt Deep Dive',
                             content: `
-                                <p class="mb-4">Dependency Injection (DI) is a core principle for building scalable, testable apps. Manually creating dependencies (e.g., 'UserRepository(apiService)') creates tight coupling. Hilt is a layer on top of Dagger that dramatically simplifies DI for Android by providing a standard set of components and scopes.</p>
+                                <p class="mb-4">Dependency Injection (DI) is a core principle for building scalable, testable apps. Hilt is a layer on top of Dagger that dramatically simplifies DI for Android by providing a standard set of components and scopes.</p>
                                 <h4 class="font-semibold mt-4 mb-2 text-indigo-600">Key Concepts:</h4>
                                 <ul class="list-disc list-inside space-y-2 mb-4">
-                                    <li><strong>Why DI?:</strong> It decouples your classes, making them easier to test, reuse, and maintain. Instead of a class creating its own dependencies, they are 'injected' from outside.</li>
-                                    <li><strong>Hilt Annotations:</strong> '@HiltAndroidApp' (on Application class), '@AndroidEntryPoint' (on Activities, Fragments, etc.), '@Inject' (on constructors), '@Module' (to provide instances you don't own), '@Provides' (the method that creates the instance), '@Binds' (for providing an implementation for an interface).</li>
-                                    <li><strong>Component Hierarchy & Scopes:</strong> Hilt has a predefined component hierarchy (e.g., SingletonComponent -> ActivityComponent -> ViewModelComponent). Scopes like '@Singleton' or '@ActivityScoped' tie the lifetime of an object to the lifetime of its corresponding component.</li>
+                                    <li><strong>Why DI?:</strong> It decouples your classes, making them easier to test, reuse, and maintain.</li>
+                                    <li><strong>Hilt Annotations:</strong> '@HiltAndroidApp', '@AndroidEntryPoint', '@Inject', '@Module', '@Provides', '@Binds'.</li>
+                                    <li><strong>Component Hierarchy & Scopes:</strong> Hilt has a predefined component hierarchy (SingletonComponent -> ActivityComponent -> ViewModelComponent). Scopes like '@Singleton' or '@ActivityScoped' tie the lifetime of an object to its component.</li>
                                 </ul>
-                                <h4 class="font-semibold mt-4 mb-2 text-indigo-600">Practical Code Snippet (Simple Hilt Setup):</h4>
-                                <pre><code class="language-kotlin">// In your Application class
-@HiltAndroidApp
-class MyApplication : Application()
-
-// A module to provide Retrofit, which we don't own
-@Module
-@InstallIn(SingletonComponent::class)
-object NetworkModule {
-    @Provides
-    @Singleton
-    fun provideRetrofit(): Retrofit {
-        return Retrofit.Builder().baseUrl("https://api.example.com").build()
-    }
-}
-
-// In your ViewModel
-@HiltViewModel
-class MyViewModel @Inject constructor(
-    private val retrofit: Retrofit
-) : ViewModel() { /* ... */ }
-
-// In your Composable screen (using the Hilt Navigation Compose library)
-// @Composable
-// fun MyScreen(viewModel: MyViewModel = hiltViewModel()) { /* ... */ }
-</code></pre>
                                 <h4 class="font-semibold mt-4 mb-2 text-red-600">Interview Pitfall & Trick Questions:</h4>
                                 <p><strong>Interviewer:</strong> "What is the difference between '@Provides' and '@Binds' in a Dagger/Hilt module?"</p>
-                                <p><strong>Your Answer:</strong> "You use '@Provides' for complex object creation, where you need to execute code, like when using a builder pattern (e.g., Retrofit or Room). It's a concrete function. You use '@Binds' as a more efficient way to tell Dagger which implementation to use for a given interface. It's an abstract function, and because Dagger doesn't need to create an instance of the module or call a method, it generates more efficient code. You'd use '@Binds' to provide a 'UserRepositoryImpl' for a 'UserRepository' interface, for example."</p>
+                                <p><strong>Your Answer:</strong> "You use '@Provides' for complex object creation, where you need to execute code, like when using a builder pattern (e.g., Retrofit). It's a concrete function. You use '@Binds' as a more efficient way to tell Dagger which implementation to use for a given interface. It's an abstract function, and because Dagger doesn't need to create an instance of the module or call a method, it generates more efficient code."</p>
                                 <h4 class="font-semibold mt-4 mb-2 text-green-600">Exercise:</h4>
                                 <p>Create a simple project with a ViewModel. Define a 'Logger' interface and a 'LoggerImpl' class. Use a Hilt module with '@Binds' to provide the implementation. Inject the 'Logger' interface into your ViewModel and call a log method from it.</p>
                             `
@@ -353,36 +383,18 @@ class MyViewModel @Inject constructor(
                         {
                             title: 'Coroutines: Structured Concurrency',
                             content: `
-                                <p class="mb-4">Coroutines are the modern way to handle concurrency on Android. They replace callback-hell and complex RxJava chains with clean, sequential-looking code. 'Structured Concurrency' is the most critical concept to master.</p>
+                                <p class="mb-4">Coroutines are the modern way to handle concurrency on Android. They replace callback-hell with clean, sequential-looking code. 'Structured Concurrency' is the most critical concept to master.</p>
                                 <h4 class="font-semibold mt-4 mb-2 text-indigo-600">Key Concepts:</h4>
                                 <ul class="list-disc list-inside space-y-2 mb-4">
-                                    <li><strong>Structured Concurrency:</strong> Coroutines are launched within a 'CoroutineScope'. This scope is tied to a lifecycle (like a ViewModel's). If the scope is cancelled (e.g., ViewModel is cleared), all coroutines within it are automatically cancelled. This prevents work and memory leaks.</li>
-                                    <li><strong>'launch' vs 'async':</strong> 'launch' is for "fire-and-forget" work that doesn't return a result. 'async' is used when you need to perform work that returns a value (a 'Deferred'). You get the result by calling '.await()'.</li>
-                                    <li><strong>Dispatchers:</strong> They determine which thread(s) the coroutine runs on. 'Dispatchers.Main' for UI work, 'Dispatchers.IO' for network/disk operations, 'Dispatchers.Default' for CPU-intensive work.</li>
-                                    <li><strong>Exception Handling:</strong> Using 'try-catch' blocks within coroutines works as you'd expect. For top-level error handling, you can install a 'CoroutineExceptionHandler' in your scope.</li>
-                                    <li><strong>Flow:</strong> A coroutine-based stream of asynchronous data, like RxJava's Observable. It's ideal for representing data that changes over time, like updates from a database or a user's location.</li>
+                                    <li><strong>Structured Concurrency:</strong> Coroutines are launched within a 'CoroutineScope' tied to a lifecycle. If the scope is cancelled, all coroutines within it are automatically cancelled, preventing leaks.</li>
+                                    <li><strong>'launch' vs 'async':</strong> 'launch' is for "fire-and-forget" work. 'async' is for work that returns a value ('Deferred'), which you get by calling '.await()'.</li>
+                                    <li><strong>Dispatchers:</strong> 'Dispatchers.Main' for UI, 'Dispatchers.IO' for network/disk, 'Dispatchers.Default' for CPU-intensive work.</li>
                                 </ul>
-                                <h4 class="font-semibold mt-4 mb-2 text-indigo-600">Practical Code Snippet (ViewModel using viewModelScope):</h4>
-                                <pre><code class="language-kotlin">class MyViewModel(private val repository: UserRepository) : ViewModel() {
-    private val _userState = MutableStateFlow<UiState<User>>(UiState.Loading)
-    val userState: StateFlow<UiState<User>> = _userState
-
-    fun fetchUser(userId: String) {
-        viewModelScope.launch(Dispatchers.IO) { // Scope tied to VM lifecycle
-            try {
-                val user = repository.getUser(userId)
-                _userState.value = UiState.Success(user)
-            } catch (e: Exception) {
-                _userState.value = UiState.Error("Failed to load user")
-            }
-        }
-    }
-}</code></pre>
                                 <h4 class="font-semibold mt-4 mb-2 text-red-600">Interview Pitfall & Trick Questions:</h4>
                                 <p><strong>Interviewer:</strong> "What's the difference between 'viewModelScope.launch' and 'GlobalScope.launch'? Why should you almost never use 'GlobalScope'?"</p>
-                                <p><strong>Your Answer:</strong> "'viewModelScope' is a structured scope tied to the ViewModel's lifecycle. Coroutines launched in it are automatically cancelled when the ViewModel is destroyed. 'GlobalScope' is a top-level scope that is not tied to any lifecycle. A coroutine launched with 'GlobalScope' will run for the entire application lifetime unless it finishes or is manually cancelled. Using it is dangerous because it's very easy to leak resources or work. For example, if you start a network request in an Activity with 'GlobalScope', that request will continue even after the Activity is destroyed, potentially leading to crashes or wasted resources."</p>
+                                <p><strong>Your Answer:</strong> "'viewModelScope' is a structured scope tied to the ViewModel's lifecycle; coroutines are cancelled automatically. 'GlobalScope' is not tied to any lifecycle, so coroutines launched with it can easily leak resources or work if not manually managed. It's dangerous for most Android use cases."</p>
                                 <h4 class="font-semibold mt-4 mb-2 text-green-600">Exercise:</h4>
-                                <p>Modify the ViewModel snippet above. Use 'async' to fetch user profile details and user's friend list in parallel from two different (fake) repository methods. Then, combine the results into a single 'UserProfileWithFriends' data object to update the UI state.</p>
+                                <p>In a ViewModel, use 'async' to fetch user profile details and user's friend list in parallel from two different (fake) repository methods. Then, combine the results into a single data object to update the UI state.</p>
                             `
                         },
                         {
@@ -391,14 +403,14 @@ class MyViewModel @Inject constructor(
                                 <p class="mb-4">A performant app is a high-quality app. A single memory leak can bring an app to its knees with OutOfMemoryError crashes. Knowing how to find and fix these issues is a hallmark of a senior developer.</p>
                                 <h4 class="font-semibold mt-4 mb-2 text-indigo-600">Key Concepts:</h4>
                                 <ul class="list-disc list-inside space-y-2 mb-4">
-                                    <li><strong>Common Memory Leaks:</strong> The classic culprits are static references to Activities, passing context incorrectly, and listeners/callbacks/coroutines not being cancelled or unregistered in the proper lifecycle method.</li>
-                                    <li><strong>Tools of the Trade:</strong> LeakCanary is an essential library for detecting leaks during development. For deep dives, the Android Studio Memory Profiler is your best friend. It lets you inspect the heap, track allocations, and identify objects that are not being garbage collected.</li>
-                                    <li><strong>UI Performance (Jank):</strong> Jank (dropped frames) is caused by doing too much work on the main thread. Use the CPU Profiler to find long-running methods and the System Trace to visualize frame rendering.</li>
-                                    <li><strong>Compose Performance:</strong> Understand how to minimize recompositions. Use 'remember', ensure data classes used in composables are 'stable' (use 'val' and immutable types), and use 'derivedStateOf' for expensive calculations. Use Layout Inspector's recomposition counter to debug.</li>
+                                    <li><strong>Common Memory Leaks:</strong> Static references to Activities, passing context incorrectly, and listeners/coroutines not being cancelled.</li>
+                                    <li><strong>Tools:</strong> LeakCanary for detection, Android Studio Memory Profiler for deep dives.</li>
+                                    <li><strong>UI Performance (Jank):</strong> Caused by doing too much work on the main thread. Use the CPU Profiler and System Trace to find bottlenecks.</li>
+                                    <li><strong>Compose Performance:</strong> Minimize recompositions by using 'remember', ensuring data classes are 'stable', and using 'derivedStateOf'.</li>
                                 </ul>
                                 <h4 class="font-semibold mt-4 mb-2 text-red-600">Interview Pitfall & Trick Questions:</h4>
-                                <p><strong>Interviewer:</strong> "I'm passing a 'List' from my ViewModel to my Composable, and it's recomposing way too often, even when the data hasn't changed. Why?"</p>
-                                <p><strong>Your Answer:</strong> "Jetpack Compose's stability system might not consider the standard Java/Kotlin 'List' interface as stable, because it's mutable. If Compose can't guarantee a type is stable, it will recompose the composable that accepts it anytime its parent recomposes. The fix is to use an immutable collection type from Kotlinx Collections ('ImmutableList') or to wrap the list in a custom stable class. This ensures Compose knows the data hasn't changed and can safely skip the recomposition."</p>
+                                <p><strong>Interviewer:</strong> "I'm passing a 'List' from my ViewModel to my Composable, and it's recomposing way too often. Why?"</p>
+                                <p><strong>Your Answer:</strong> "The standard 'List' interface is mutable, so Compose may not consider it stable. If Compose can't guarantee a type is stable, it will recompose the composable that accepts it anytime its parent recomposes. The fix is to use an immutable collection type from Kotlinx Collections ('ImmutableList') or to wrap the list in a custom stable class."</p>
                                 <h4 class="font-semibold mt-4 mb-2 text-green-600">Exercise:</h4>
                                 <p>Intentionally create a memory leak. Make a singleton object that takes a 'Context' in its 'init' method and stores it in a property. Pass an Activity context to it. Then, use the Android Studio Profiler to rotate the screen several times and observe that multiple instances of your Activity are kept in memory.</p>
                             `
@@ -415,33 +427,13 @@ class MyViewModel @Inject constructor(
                                 <p class="mb-4">Code without tests is legacy code the moment it's written. A solid testing strategy gives you the confidence to refactor and add new features without breaking existing ones. This is a non-negotiable skill for senior roles.</p>
                                 <h4 class="font-semibold mt-4 mb-2 text-indigo-600">Key Concepts:</h4>
                                 <ul class="list-disc list-inside space-y-2 mb-4">
-                                    <li><strong>The Testing Pyramid:</strong> The concept that you should have many fast, small unit tests at the base, fewer medium-speed integration tests in the middle, and a very small number of slow, end-to-end UI tests at the top.</li>
-                                    <li><strong>Unit Tests (in /test):</strong> Run on the local JVM. They are fast and used to test individual classes in isolation, like ViewModels or utility functions. Use JUnit as the framework and Mockito (or MockK) to create mock objects for dependencies (like a Repository).</li>
-                                    <li><strong>Integration/UI Tests (in /androidTest):</strong> Run on a real device or emulator. They are slower but can test how parts of your app work together or interact with the Android framework.</li>
-                                    <li><strong>Testing Compose:</strong> Use the 'createComposeRule()' to write UI tests for composables. You can find nodes using semantic tags ('onNodeWithTag'), perform actions ('performClick'), and assert their properties ('assertIsDisplayed').</li>
-                                    <li><strong>Testable Architecture:</strong> This is why DI is so important. By injecting dependencies, you can provide mock versions in your tests, allowing you to test a class's logic in complete isolation.</li>
+                                    <li><strong>The Testing Pyramid:</strong> Many fast unit tests, fewer integration tests, and very few slow end-to-end UI tests.</li>
+                                    <li><strong>Unit Tests (/test):</strong> Run on the JVM to test classes in isolation (e.g., ViewModels). Use JUnit and MockK.</li>
+                                    <li><strong>UI Tests (/androidTest):</strong> Run on a device/emulator. Use 'createComposeRule()' to test composables, find nodes with semantic tags, and perform actions/assertions.</li>
                                 </ul>
-                                <h4 class="font-semibold mt-4 mb-2 text-indigo-600">Practical Code Snippet (ViewModel Unit Test with MockK):</h4>
-                                <pre><code class="language-kotlin">// Assume a ViewModel
-class MyViewModel(private val userRepo: UserRepository) { /*...*/ }
-
-// The JUnit4 Test with MockK
-@Test
-fun \`example test\`() {
-    // 1. Arrange
-    val mockUserRepo = mockk<UserRepository>()
-    coEvery { mockUserRepo.getUser("123") } returns User("John Doe")
-    val viewModel = MyViewModel(mockUserRepo)
-
-    // 2. Act
-    viewModel.loadUser("123")
-
-    // 3. Assert
-    // ... assert something on the viewModel's state
-}</code></pre>
                                 <h4 class="font-semibold mt-4 mb-2 text-red-600">Interview Pitfall & Trick Questions:</h4>
                                 <p><strong>Interviewer:</strong> "How do you test a coroutine that uses 'Dispatchers.Main' in a local JVM unit test?"</p>
-                                <p><strong>Your Answer:</strong> "The 'Main' dispatcher is not available in a JVM test, so calling it will throw an exception. The standard practice is to use a 'TestDispatcher' from the 'kotlinx-coroutines-test' library. Before the test runs, you use 'Dispatchers.setMain(testDispatcher)' to replace the main dispatcher. This gives you full control over the timing of the coroutine, allowing you to advance the virtual clock and run assertions in a deterministic way."</p>
+                                <p><strong>Your Answer:</strong> "The 'Main' dispatcher isn't available in a JVM test. The standard practice is to use a 'TestDispatcher' from the 'kotlinx-coroutines-test' library. Before the test runs, you use 'Dispatchers.setMain(testDispatcher)' to replace the main dispatcher, giving you full, deterministic control over the coroutine's execution."</p>
                                 <h4 class="font-semibold mt-4 mb-2 text-green-600">Exercise:</h4>
                                 <p>Write a simple Compose UI test. The UI should have a Button and a Text field. The test should click the button, which updates the text, and then assert that the text field displays the new value.</p>
                             `
@@ -455,30 +447,16 @@ fun \`example test\`() {
                         {
                             title: 'Compose Fundamentals: State & Recomposition',
                             content: `
-                                <p class="mb-4">Jetpack Compose is a declarative UI toolkit. You describe your UI by calling Composable functions. When the app's state changes, Compose intelligently "recomposes" (re-runs the functions) to update the UI. Mastering state is the key to mastering Compose.</p>
+                                <p class="mb-4">Jetpack Compose is a declarative UI toolkit. You describe your UI by calling Composable functions. When the app's state changes, Compose intelligently "recomposes" to update the UI. Mastering state is the key to mastering Compose.</p>
                                 <h4 class="font-semibold mt-4 mb-2 text-indigo-600">Key Concepts:</h4>
                                 <ul class="list-disc list-inside space-y-2 mb-4">
-                                    <li><strong>Declarative Mindset:</strong> You describe *what* the UI should look like for a given state, not *how* to change it step-by-step.</li>
-                                    <li><strong>@Composable Functions:</strong> The building blocks of your UI. They are just Kotlin functions annotated with '@Composable'.</li>
-                                    <li><strong>State:</strong> Any value that can change over time. In Compose, you create state with 'mutableStateOf()'.</li>
-                                    <li><strong>'remember':</strong> To preserve state across recompositions, you must use 'remember'. If you don't, the state variable will be reset to its initial value every time the composable re-runs.</li>
-                                    <li><strong>Recomposition:</strong> When a state object that a composable reads from is updated, Compose schedules that composable (and any others that read the same state) to be re-run to reflect the new state in the UI.</li>
+                                    <li><strong>Declarative Mindset:</strong> Describe *what* the UI should look like for a given state, not *how* to change it.</li>
+                                    <li><strong>State & 'remember':</strong> Create state with 'mutableStateOf()' and use 'remember' to preserve it across recompositions.</li>
+                                    <li><strong>Recomposition:</strong> When state changes, Compose re-runs the composables that read that state to update the UI.</li>
                                 </ul>
-                                <h4 class="font-semibold mt-4 mb-2 text-indigo-600">Practical Code Snippet (A Simple Counter):</h4>
-                                <pre><code class="language-kotlin">@Composable
-fun Counter() {
-    // 'remember' keeps the 'count' value alive across recompositions.
-    // 'mutableStateOf(0)' creates an observable state object.
-    var count by remember { mutableStateOf(0) }
-
-    Button(onClick = { count++ }) { // When clicked, the state updates...
-        // ...which causes any composable reading 'count' to recompose.
-        Text("Clicked $count times")
-    }
-}</code></pre>
                                 <h4 class="font-semibold mt-4 mb-2 text-red-600">Interview Pitfall & Trick Questions:</h4>
                                 <p><strong>Interviewer:</strong> "Can you call a Composable function from a regular Kotlin function?"</p>
-                                <p><strong>Your Answer:</strong> "No. Composable functions can only be called from other Composable functions. This is enforced by the Compose compiler. This rule ensures that UI code is only ever executed within the controlled context of the Compose runtime, which is necessary to track state and manage recomposition."</p>
+                                <p><strong>Your Answer:</strong> "No. Composable functions can only be called from other Composable functions. This is enforced by the Compose compiler to ensure UI code is only ever executed within the controlled context of the Compose runtime."</p>
                                 <h4 class="font-semibold mt-4 mb-2 text-green-600">Exercise:</h4>
                                 <p>Create a composable with a 'TextField' and a 'Text' element. As the user types into the 'TextField', the 'Text' element below it should update in real-time to show what's being typed.</p>
                             `
@@ -486,17 +464,16 @@ fun Counter() {
                         {
                             title: 'Layouts, Modifiers & Theming',
                             content: `
-                                <p class="mb-4">You build complex UIs in Compose by arranging simple building blocks. Layouts like 'Column', 'Row', and 'Box' position your composables, while the powerful 'Modifier' system is used for everything else: sizing, spacing, styling, and event handling.</p>
+                                <p class="mb-4">You build complex UIs in Compose by arranging simple building blocks. Layouts like 'Column', 'Row', and 'Box' position your composables, while the powerful 'Modifier' system is used for sizing, spacing, styling, and event handling.</p>
                                 <h4 class="font-semibold mt-4 mb-2 text-indigo-600">Key Concepts:</h4>
                                 <ul class="list-disc list-inside space-y-2 mb-4">
-                                    <li><strong>Layout Composables:</strong> 'Column' arranges items vertically. 'Row' arranges items horizontally. 'Box' stacks items on top of each other (like a FrameLayout). 'LazyColumn'/'LazyRow' are the equivalent of RecyclerView for displaying long, scrollable lists efficiently.</li>
-                                    <li><strong>Modifiers:</strong> Almost every composable accepts a 'Modifier' parameter. Modifiers are chained together to decorate a composable. The order matters! 'Modifier.padding(16.dp).clickable()' behaves differently than 'Modifier.clickable().padding(16.dp)'.</li>
-                                    <li><strong>Common Modifiers:</strong> '.fillMaxSize()', '.padding()', '.size()', '.background()', '.clickable()', '.weight()' (for distributing space in a Row/Column).</li>
-                                    <li><strong>MaterialTheme:</strong> The standard way to apply consistent styling. You access predefined colors, typography, and shapes like 'MaterialTheme.colors.primary' to ensure your app follows your design system.</li>
+                                    <li><strong>Layout Composables:</strong> 'Column' (vertical), 'Row' (horizontal), 'Box' (stacking), 'LazyColumn' (efficient scrolling list).</li>
+                                    <li><strong>Modifiers:</strong> Chained functions to decorate composables. The order matters!</li>
+                                    <li><strong>MaterialTheme:</strong> The standard way to apply consistent styling for colors, typography, and shapes.</li>
                                 </ul>
                                 <h4 class="font-semibold mt-4 mb-2 text-red-600">Interview Pitfall & Trick Questions:</h4>
                                 <p><strong>Interviewer:</strong> "Explain why the order of modifiers matters. Give an example."</p>
-                                <p><strong>Your Answer:</strong> "Modifiers are applied from the outside-in. Each modifier decorates the result of the one before it. A classic example is padding vs. clickable. If you write 'Modifier.padding(16.dp).clickable()', the padding is applied first, creating a smaller inner area. Only that inner area will be clickable. If you write 'Modifier.clickable().padding(16.dp)', the clickable area is applied first to the entire layout space, and then the padding is applied inside that, pushing the content inward. The result is a large, invisible clickable area with padding inside it. The visual result might be the same, but the touch target is completely different."</p>
+                                <p><strong>Your Answer:</strong> "Modifiers are applied from the outside-in. 'Modifier.padding(16.dp).clickable()' creates a smaller clickable area inside the padding. 'Modifier.clickable().padding(16.dp)' creates a large clickable area with the visual content padded inside it. The visual result can be similar, but the touch target is completely different."</p>
                                 <h4 class="font-semibold mt-4 mb-2 text-green-600">Exercise:</h4>
                                 <p>Create a user profile card using a 'Row'. The 'Row' should contain a circular 'Image' on the left and a 'Column' on the right. The 'Column' should contain the user's name (bold text) and status (regular text). Use modifiers to add appropriate spacing and alignment.</p>
                             `
@@ -504,19 +481,19 @@ fun Counter() {
                         {
                             title: 'State Management & Unidirectional Data Flow',
                             content: `
-                                <p class="mb-4">For simple screens, 'remember { mutableStateOf(...) }' is fine. For complex screens and entire apps, you need a robust state management strategy. The recommended pattern is Unidirectional Data Flow (UDF), where state flows down and events flow up.</p>
+                                <p class="mb-4">For complex screens, you need a robust state management strategy. The recommended pattern is Unidirectional Data Flow (UDF), where state flows down from a state holder (like a ViewModel) and events flow up.</p>
                                 <h4 class="font-semibold mt-4 mb-2 text-indigo-600">Key Concepts:</h4>
                                 <ul class="list-disc list-inside space-y-2 mb-4">
-                                    <li><strong>Unidirectional Data Flow (UDF):</strong> State flows down from a state holder (like a ViewModel) to the UI. The UI raises events (like button clicks) which flow up to the state holder. The state holder processes the event, updates its state, and the new state flows back down to the UI, causing a recomposition. This makes the data flow predictable and easy to debug.</li>
-                                    <li><strong>State Hoisting:</strong> The practice of moving state up from a composable to its caller. This makes composables more reusable and testable, as they become "stateless". The state and the lambdas to modify it are passed in as parameters.</li>
+                                    <li><strong>Unidirectional Data Flow (UDF):</strong> State flows down, events flow up. This makes the data flow predictable and easy to debug.</li>
+                                    <li><strong>State Hoisting:</strong> Moving state up from a composable to its caller to make the composable stateless and reusable.</li>
                                     <li><strong>ViewModel as State Holder:</strong> The Jetpack 'ViewModel' is the ideal state holder. It survives configuration changes and can expose its state to the UI using 'StateFlow'.</li>
-                                    <li><strong>Connecting ViewModel to Compose:</strong> You use 'collectAsStateWithLifecycle()' to collect a 'StateFlow' from a ViewModel in a lifecycle-aware manner. This ensures the UI only collects the state when it's on screen, saving resources.</li>
+                                    <li><strong>Connecting ViewModel to Compose:</strong> Use 'collectAsStateWithLifecycle()' to collect a 'StateFlow' from a ViewModel in a lifecycle-aware manner.</li>
                                 </ul>
                                 <h4 class="font-semibold mt-4 mb-2 text-red-600">Interview Pitfall & Trick Questions:</h4>
                                 <p><strong>Interviewer:</strong> "What is the problem with using 'collectAsState()' directly in a composable instead of 'collectAsStateWithLifecycle()'?"</p>
-                                <p><strong>Your Answer:</strong> "'collectAsState()' will continue to collect from the Flow as long as the composable is in the composition, even if the app is in the background. This can waste resources by receiving and processing updates that the user can't see. 'collectAsStateWithLifecycle()' is the recommended, safer alternative. It's a lifecycle-aware collector that automatically starts collecting when the UI is in the 'STARTED' state and stops when it's 'STOPPED', preventing resource waste when the app is backgrounded."</p>
+                                <p><strong>Your Answer:</strong> "'collectAsState()' will continue to collect from the Flow as long as the composable is in the composition, even if the app is in the background. 'collectAsStateWithLifecycle()' is the recommended, safer alternative. It's a lifecycle-aware collector that automatically starts and stops collecting based on the UI lifecycle, preventing resource waste."</p>
                                 <h4 class="font-semibold mt-4 mb-2 text-green-600">Exercise:</h4>
-                                <p>Refactor the Counter exercise. Create a 'CounterViewModel' that holds the count in a 'MutableStateFlow'. The Composable should take the count and a lambda '(onIncrement: () -> Unit)' as parameters. The ViewModel should be injected into the screen, and the Composable should be stateless, simply displaying the count and calling the lambda on button click.</p>
+                                <p>Refactor the Counter exercise. Create a 'CounterViewModel' that holds the count in a 'MutableStateFlow'. The Composable should take the count and a lambda '(onIncrement: () -> Unit)' as parameters. The ViewModel should be injected into the screen, and the Composable should be stateless.</p>
                             `
                         }
                     ]
@@ -531,27 +508,27 @@ fun Counter() {
                                 <p class="mb-4">This is the pinnacle of senior-level thinking. It's not just about writing code, but about structuring the entire application so it can be maintained and scaled by a team over many years. System design questions are standard in SDE-2+ interviews.</p>
                                 <h4 class="font-semibold mt-4 mb-2 text-indigo-600">Key Architectural Patterns:</h4>
                                 <ul class="list-disc list-inside space-y-2 mb-4">
-                                    <li><strong>MVVM + UDF:</strong> The standard architecture for modern Android. The View (Compose UI) observes state from the ViewModel. The ViewModel holds UI state and exposes it via 'StateFlow'. The ViewModel gets its data from the Model (Repository). User events from the UI are sent to the ViewModel to be processed, creating a Unidirectional Data Flow.</li>
-                                    <li><strong>Clean Architecture:</strong> A set of principles for creating highly scalable, testable, and maintainable apps. It divides the app into layers (Presentation, Domain, Data) with a strict dependency rule: inner layers must not know anything about outer layers. This decouples your core business logic (Use Cases in the Domain layer) from frameworks like Android.</li>
+                                    <li><strong>MVVM + UDF:</strong> The standard architecture for modern Android. The View (Compose UI) observes state from the ViewModel. The ViewModel holds UI state and exposes it via 'StateFlow'. It gets data from the Model (Repository). User events from the UI are sent to the ViewModel, creating a Unidirectional Data Flow.</li>
+                                    <li><strong>Clean Architecture:</strong> Divides the app into layers (Presentation, Domain, Data) with a strict dependency rule: inner layers must not know about outer layers. This decouples your core business logic (Use Cases) from frameworks like Android.</li>
                                 </ul>
                                 <h4 class="font-semibold mt-4 mb-2 text-indigo-600">Multi-Module Strategy:</h4>
                                 <p class="mb-4">As an app grows, a single-module project becomes slow to build and hard to navigate. We split it into multiple, focused modules.</p>
                                 <ul class="list-disc list-inside space-y-2 mb-4">
-                                    <li><strong>:app Module:</strong> The main application module. Often kept lean, primarily responsible for dependency injection setup and wiring the other modules together.</li>
-                                    <li><strong>Feature Modules (e.g., :feature_login, :feature_dashboard):</strong> Each feature of the app gets its own module. This allows teams to work on features in isolation and enables faster build times.</li>
-                                    <li><strong>Library Modules (e.g., :core_ui, :core_data, :core_domain):</strong> These modules contain shared code. ':core_ui' has shared Composables and theme definitions. ':core_data' contains Repository implementations and data sources. ':core_domain' contains shared models and Use Case interfaces.</li>
+                                    <li><strong>:app Module:</strong> The main application module, often kept lean.</li>
+                                    <li><strong>Feature Modules (e.g., :feature_login):</strong> Each feature gets its own module, enabling faster build times and isolated development.</li>
+                                    <li><strong>Library Modules (e.g., :core_ui, :core_data):</strong> These modules contain shared code like Composables, theme definitions, Repository implementations, and data sources.</li>
                                 </ul>
                                 <h4 class="font-semibold mt-4 mb-2 text-red-600">Interview Pitfall & Trick Questions:</h4>
-                                <p><strong>Interviewer:</strong> "You're asked to design a Reddit-style client app from scratch. Describe your module structure and the key classes in your data flow for fetching and displaying a list of posts."</p>
+                                <p><strong>Interviewer:</strong> "You're asked to design a Reddit-style client app. Describe your module structure and data flow."</p>
                                 <p><strong>Your Answer:</strong> "I'd use a multi-module Clean Architecture approach with MVVM/UDF.
                                     <br><strong>Modules:</strong> ':app', ':core_ui', ':core_data', ':core_domain', ':feature_feed'.
                                     <br><strong>Data Flow:</strong>
-                                    <br>1. <strong>UI (in :feature_feed):</strong> A Composable screen observes a 'StateFlow' of UI state from the 'FeedViewModel'.
-                                    <br>2. <strong>ViewModel (in :feature_feed):</strong> Injected with a 'GetPostsUseCase'. Calls the use case and maps the result to a UI state object (e.g., Loading, Success, Error) which is emitted to its 'StateFlow'.
-                                    <br>3. <strong>UseCase (in :feature_feed):</strong> A simple class in the domain layer of the feature module, injected with a 'PostsRepository' interface. Its single public method executes the business logic of getting posts.
-                                    <br>4. <strong>Repository Interface (in :core_domain):</strong> Defines the contract, e.g., 'getPosts(): Flow<List<Post>>'. This allows the domain layer to be independent of the data layer.
-                                    <br>5. <strong>Repository Implementation (in :core_data):</strong> Implements the interface. Injected with a 'PostApiService' and 'PostDao'. It decides whether to fetch from the network or local cache (the 'single source of truth' pattern).
-                                    <br>6. <strong>Data Sources (in :core_data):</strong> 'PostApiService' (Retrofit interface) and 'PostDao' (Room DAO)."</p>
+                                    <br>1. <strong>UI (:feature_feed):</strong> Composable screen observes 'StateFlow' from 'FeedViewModel'.
+                                    <br>2. <strong>ViewModel (:feature_feed):</strong> Injected with 'GetPostsUseCase', maps results to UI state.
+                                    <br>3. <strong>UseCase (:feature_feed's domain):</strong> Injected with 'PostsRepository' interface. Contains business logic.
+                                    <br>4. <strong>Repository Interface (:core_domain):</strong> Defines the data contract (e.g., 'getPosts()').
+                                    <br>5. <strong>Repository Impl (:core_data):</strong> Implements the interface. Injected with API/DAO. Decides between network/cache.
+                                    <br>6. <strong>Data Sources (:core_data):</strong> Retrofit and Room interfaces."</p>
                                 <h4 class="font-semibold mt-4 mb-2 text-green-600">Exercise:</h4>
                                 <p>Diagram on paper the module dependencies for a simple music player app. It should have modules for the main app, a 'now playing' feature, a 'library' feature, a 'core_ui' module, and a 'core_data' module for handling music files.</p>
                             `
@@ -570,7 +547,7 @@ fun Counter() {
             }
         };
 
-          let userNotes = [];
+        let userNotes = [];
 
         document.addEventListener('DOMContentLoaded', async () => {
             const navContainer = document.getElementById('main-nav');
@@ -578,6 +555,14 @@ fun Counter() {
             const progressBarsContainer = document.getElementById('progress-bars');
             
             // --- 1. SETUP UI FROM STATIC DATA ---
+            const dashboardLink = document.createElement('a');
+            dashboardLink.href = '#dashboard';
+            dashboardLink.className = 'nav-item block px-4 py-2 rounded-md font-medium';
+            dashboardLink.textContent = "Dashboard";
+            dashboardLink.dataset.target = 'dashboard';
+            dashboardLink.dataset.type = 'dashboard';
+            navContainer.prepend(dashboardLink);
+
             roadmapData.modules.forEach((module) => {
                 const navItem = document.createElement('a');
                 navItem.href = `#${module.id}`;
@@ -590,43 +575,48 @@ fun Counter() {
                 const contentSection = document.createElement('section');
                 contentSection.id = module.id;
                 contentSection.className = 'content-section';
-                contentSection.innerHTML = `<h2 class="text-3xl font-bold mb-2">${module.title}</h2><p class="text-slate-600 mb-8">A deep dive into ${module.title.toLowerCase()}.</p> ...`; // Simplified for brevity
+                let topicsHtml = module.topics.map(topic => `
+                    <div class="topic-card bg-white p-6 rounded-lg shadow-md">
+                        <details>
+                            <summary class="cursor-pointer font-semibold text-lg text-slate-800 hover:text-indigo-600">${topic.title}</summary>
+                            <div class="mt-4 pt-4 border-t border-slate-200">${topic.content}</div>
+                        </details>
+                    </div>`).join('');
+                contentSection.innerHTML = `<h2 class="text-3xl font-bold mb-2">${module.title}</h2><p class="text-slate-600 mb-8">A deep dive into ${module.title.toLowerCase()}.</p><div class="space-y-6">${topicsHtml}</div>`;
                 contentContainer.appendChild(contentSection);
-            });
-            // Simplified progress bar and chart setup
-            new Chart(document.getElementById('progressChart').getContext('2d'), { type: 'radar', data: { labels: [], datasets: [] }, options: {} });
 
+                 const progressBarDiv = document.createElement('div');
+                 const progress = roadmapData.proficiency[module.id] || 0;
+                 progressBarDiv.innerHTML = `<div><span class="font-semibold text-sm">${module.title}</span><div class="w-full bg-slate-200 rounded-full h-2.5 mt-1"><div class="bg-indigo-600 h-2.5 rounded-full progress-bar-fill" style="width: ${progress}%"></div></div></div>`;
+                 progressBarsContainer.appendChild(progressBarDiv);
+            });
+            
+            new Chart(document.getElementById('progressChart').getContext('2d'), { type: 'radar', data: { labels: roadmapData.modules.map(m => m.title), datasets: [{ label: 'Proficiency', data: roadmapData.modules.map(m => roadmapData.proficiency[m.id]), fill: true, backgroundColor: 'rgba(79, 70, 229, 0.2)', borderColor: 'rgb(79, 70, 229)' }] }, options: { maintainAspectRatio: false, scales: { r: { suggestedMin: 0, suggestedMax: 100 } }, plugins: { legend: { display: false } } } });
 
             // --- 2. FETCH GITHUB NOTES ---
             await fetchAndRenderGitHubNotes();
 
-
             // --- 3. UNIFIED NAVIGATION LOGIC WITH HISTORY API ---
-            const dashboardLink = document.createElement('a');
-            dashboardLink.href = '#dashboard';
-            dashboardLink.className = 'nav-item block px-4 py-2 rounded-md font-medium';
-            dashboardLink.textContent = "Dashboard";
-            dashboardLink.dataset.target = 'dashboard';
-            dashboardLink.dataset.type = 'dashboard';
-            navContainer.prepend(dashboardLink);
-
             const contentSections = document.querySelectorAll('.content-section');
             const markdownViewerSection = document.getElementById('markdown-viewer-section');
             const markdownContentDiv = document.getElementById('markdown-content');
 
-            // This function ONLY updates the view
             function displayContent(targetId, type) {
                 contentSections.forEach(section => section.classList.remove('active'));
                 
+                const targetSection = document.getElementById(targetId);
                 if (type === 'roadmap' || type === 'dashboard') {
-                    const targetSection = document.getElementById(targetId);
                     if(targetSection) targetSection.classList.add('active');
                 } else if (type === 'note') {
                     const note = userNotes.find(n => n.id === targetId);
                     if (note) {
                         markdownContentDiv.innerHTML = marked.parse(note.markdown);
                         markdownViewerSection.classList.add('active');
+                    } else {
+                         document.getElementById('dashboard').classList.add('active');
                     }
+                } else {
+                    document.getElementById('dashboard').classList.add('active');
                 }
                 
                 document.querySelectorAll('.nav-item').forEach(item => {
@@ -634,31 +624,28 @@ fun Counter() {
                 });
             }
             
-            // This function handles clicks and updates history
             function navigateTo(targetId, type) {
+                const currentState = history.state;
+                if (currentState && currentState.targetId === targetId) return;
+
                 displayContent(targetId, type);
                 const state = { targetId, type };
-                const title = type === 'note' ? userNotes.find(n=>n.id===targetId).title : roadmapData.modules.find(m=>m.id===targetId)?.title || 'Dashboard';
+                const title = type === 'note' ? (userNotes.find(n=>n.id===targetId)?.title || 'Note') : (roadmapData.modules.find(m=>m.id===targetId)?.title || 'Dashboard');
                 history.pushState(state, title, `#${targetId}`);
             }
 
-            // Listen for user clicks on nav items
             navContainer.addEventListener('click', (e) => {
                 e.preventDefault();
                 const targetElement = e.target.closest('.nav-item');
                 if (targetElement) {
-                    const targetId = targetElement.dataset.target;
-                    const targetType = targetElement.dataset.type;
-                    navigateTo(targetId, targetType);
+                    navigateTo(targetElement.dataset.target, targetElement.dataset.type);
                 }
             });
 
-            // Listen for back/forward button clicks
             window.addEventListener('popstate', (e) => {
                 if (e.state) {
                     displayContent(e.state.targetId, e.state.type);
                 } else {
-                    // If state is null, it's the initial page load state
                     displayContent('dashboard', 'dashboard');
                 }
             });
@@ -672,7 +659,7 @@ fun Counter() {
                     const targetId = navItem.dataset.target;
                     const type = navItem.dataset.type;
                     displayContent(targetId, type);
-                     history.replaceState({targetId, type}, '', `#${targetId}`);
+                    history.replaceState({targetId, type}, '', `#${targetId}`);
                 } else {
                     displayContent('dashboard', 'dashboard');
                     history.replaceState({targetId: 'dashboard', type: 'dashboard'}, '', '#dashboard');
@@ -680,19 +667,24 @@ fun Counter() {
             }
             
             async function fetchAndRenderGitHubNotes() {
-                // ... same fetch logic as before ...
                 const owner = 'Akhiay54';
                 const repo = 'Interview-Preparation';
                 const apiUrl = `https://api.github.com/repos/${owner}/${repo}/contents/`;
+                
+                const divider = document.createElement('div');
+                divider.className = 'sidebar-divider';
+                navContainer.appendChild(divider);
+
                 const heading = document.createElement('div');
-                heading.className = 'sidebar-heading pt-4 border-t border-slate-200 mt-4';
+                heading.className = 'sidebar-heading';
                 heading.textContent = 'Your GitHub Notes';
                 navContainer.appendChild(heading);
                 
                 try {
                     const response = await fetch(apiUrl);
+                     if (!response.ok) throw new Error(`GitHub API Error: ${response.status} ${response.statusText}`);
                     const files = await response.json();
-                    const mdFiles = files.filter(file => file.name.endsWith('.md'));
+                    const mdFiles = files.filter(file => file.name.endsWith('.md') && file.type === 'file');
 
                     const notesPromises = mdFiles.map(async file => {
                         const contentResponse = await fetch(file.download_url);
@@ -720,183 +712,10 @@ fun Counter() {
                 }
             }
 
-            handleInitialLoad(); // Call this function to set the correct initial state.
+            handleInitialLoad();
 
-        });
-
-        document.addEventListener('DOMContentLoaded', () => {
-            const navContainer = document.getElementById('main-nav');
-            const contentContainer = document.getElementById('content-container');
-            const progressBarsContainer = document.getElementById('progress-bars');
-            
-            // Populate nav and content
-            roadmapData.modules.forEach((module, index) => {
-                const navItem = document.createElement('a');
-                navItem.href = '#';
-                navItem.className = `nav-item block px-4 py-2 rounded-md font-medium ${index === -1 ? 'active' : 'hover:bg-slate-100'}`;
-                navItem.textContent = module.title;
-                navItem.dataset.target = module.id;
-                if (index === 0) {
-                    navItem.dataset.isFirst = true;
-                }
-                navContainer.appendChild(navItem);
-
-                const contentSection = document.createElement('section');
-                contentSection.id = module.id;
-                contentSection.className = 'content-section';
-                contentSection.innerHTML = `
-                    <h2 class="text-3xl font-bold mb-2">${module.title}</h2>
-                    <p class="text-slate-600 mb-8">A deep dive into ${module.title.toLowerCase()}.</p>
-                    <div class="space-y-6">
-                        ${module.topics.map((topic, topicIndex) => `
-                            <div class="topic-card bg-white p-6 rounded-lg shadow-md">
-                                <details>
-                                    <summary class="cursor-pointer font-semibold text-lg text-slate-800 hover:text-indigo-600">
-                                        ${topic.title}
-                                    </summary>
-                                    <div class="mt-4 pt-4 border-t border-slate-200">
-                                        ${topic.content}
-                                    </div>
-                                </details>
-                            </div>
-                        `).join('')}
-                    </div>
-                `;
-                contentContainer.appendChild(contentSection);
-                
-                // Populate progress bars
-                const progressBarDiv = document.createElement('div');
-                const progress = roadmapData.proficiency[module.id] || 0;
-                progressBarDiv.innerHTML = `
-                    <div>
-                        <span class="font-semibold text-sm">${module.title}</span>
-                        <div class="w-full bg-slate-200 rounded-full h-2.5 mt-1">
-                            <div class="bg-indigo-600 h-2.5 rounded-full progress-bar-fill" style="width: ${progress}%"></div>
-                        </div>
-                    </div>
-                `;
-                progressBarsContainer.appendChild(progressBarDiv);
-            });
-            
-            // Add event listeners for copy buttons
-            document.querySelectorAll('.copy-btn').forEach(button => {
-                 button.addEventListener('click', () => {
-                    const code = button.previousElementSibling.textContent;
-                    navigator.clipboard.writeText(code).then(() => {
-                        button.textContent = 'Copied!';
-                        setTimeout(() => {
-                            button.textContent = 'Copy';
-                        }, 2000);
-                    });
-                });
-            });
-
-            // Navigation logic
-            const navItems = document.querySelectorAll('.nav-item');
-            const contentSections = document.querySelectorAll('.content-section');
-            const dashboard = document.getElementById('dashboard');
-
-            function showContent(targetId) {
-                contentSections.forEach(section => {
-                    section.classList.toggle('active', section.id === targetId);
-                });
-                dashboard.classList.toggle('active', targetId === 'dashboard');
-                
-                navItems.forEach(item => {
-                    item.classList.toggle('active', item.dataset.target === targetId);
-                });
-                
-                if (targetId === 'dashboard') {
-                   const firstNavItem = document.querySelector('.nav-item[data-is-first="true"]');
-                   if (firstNavItem) firstNavItem.classList.remove('active');
-                }
-            }
-
-            navItems.forEach(item => {
-                item.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    const targetId = e.target.dataset.target;
-                    showContent(targetId);
-                });
-            });
-            
-            // Add copy buttons dynamically
-            document.querySelectorAll('pre').forEach(pre => {
-                const button = document.createElement('button');
-                button.className = 'copy-btn';
-                button.textContent = 'Copy';
-                pre.appendChild(button);
-
-                button.addEventListener('click', () => {
-                    const code = pre.querySelector('code').innerText;
-                    navigator.clipboard.writeText(code).then(() => {
-                        button.textContent = 'Copied!';
-                        setTimeout(() => {
-                            button.textContent = 'Copy';
-                        }, 2000);
-                    }).catch(err => {
-                        console.error('Failed to copy text: ', err);
-                    });
-                });
-            });
-
-            // Chart.js Radar Chart
-            const ctx = document.getElementById('progressChart').getContext('2d');
-            const labels = roadmapData.modules.map(m => m.title.replace('with Jetpack Compose', 'w/ Compose').replace('Fundamentals', ''));
-            const data = roadmapData.modules.map(m => roadmapData.proficiency[m.id]);
-
-            new Chart(ctx, {
-                type: 'radar',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Proficiency',
-                        data: data,
-                        fill: true,
-                        backgroundColor: 'rgba(79, 70, 229, 0.2)',
-                        borderColor: 'rgb(79, 70, 229)',
-                        pointBackgroundColor: 'rgb(79, 70, 229)',
-                        pointBorderColor: '#fff',
-                        pointHoverBackgroundColor: '#fff',
-                        pointHoverBorderColor: 'rgb(79, 70, 229)'
-                    }]
-                },
-                options: {
-                    maintainAspectRatio: false,
-                    scales: {
-                        r: {
-                            angleLines: {
-                                color: 'rgba(0, 0, 0, 0.1)'
-                            },
-                            grid: {
-                                color: 'rgba(0, 0, 0, 0.1)'
-                            },
-                            pointLabels: {
-                                font: {
-                                    size: 12,
-                                    weight: '500'
-                                },
-                                color: '#475569'
-                            },
-                            ticks: {
-                                backdropColor: 'rgba(255, 255, 255, 0.75)',
-                                color: '#64748b',
-                                stepSize: 20
-                            },
-                            suggestedMin: 0,
-                            suggestedMax: 100
-                        }
-                    },
-                    plugins: {
-                        legend: {
-                            display: false
-                        }
-                    }
-                }
-            });
         });
     </script>
-
 </body>
 </html>
 
