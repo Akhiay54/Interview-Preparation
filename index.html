@@ -204,43 +204,97 @@ fun handleState(state: UiState<List<String>>) {
                 },
                 {
                     id: 'android_core',
-                    title: 'Android Core Components',
+                    title: 'Android Core Fundamentals',
                     topics: [
                        {
-                            title: 'Activity & Fragment Lifecycles',
+                            title: 'Activity, Fragment & Component Lifecycles',
                             content: `
-                                <p class="mb-4">This is Android 101, but the edge cases are what trip up even experienced developers. Interviewers love to probe here to test the depth of your knowledge beyond the basic diagrams.</p>
+                                <p class="mb-4">This is Android 101, but the edge cases are what trip up even experienced developers. Interviewers love to probe here to test the depth of your knowledge beyond the basic diagrams. You must know this cold.</p>
                                 <h4 class="font-semibold mt-4 mb-2 text-indigo-600">Key Concepts:</h4>
                                 <ul class="list-disc list-inside space-y-2 mb-4">
-                                    <li><strong>Activity Lifecycle:</strong> Not just the order of callbacks ('onCreate', 'onStart', 'onResume', etc.), but <em>why</em> they are called. What happens during a configuration change (like screen rotation)? When is 'onSaveInstanceState' called versus 'onStop'?</li>
-                                    <li><strong>Fragment Lifecycle:</strong> It's more complex because it's tied to the host Activity's lifecycle and has its own view lifecycle ('onCreateView', 'onViewCreated', 'onDestroyView'). Understand the difference between the Fragment's lifecycle and its view's lifecycle.</li>
-                                    <li><strong>Communication:</strong> Best practices for Activity-Fragment and Fragment-Fragment communication. (Hint: It's ViewModels now, not interfaces or 'findFragmentById').</li>
+                                    <li><strong>Activity Lifecycle:</strong> Not just the order ('onCreate', 'onStart', 'onResume'), but <em>why</em> and <em>when</em>. What happens during a configuration change (like screen rotation)? When is 'onSaveInstanceState' called versus 'onStop'?</li>
+                                    <li><strong>Fragment Lifecycle:</strong> It's more complex because it's tied to the host Activity's lifecycle and has its own view lifecycle ('onCreateView', 'onViewCreated', 'onDestroyView'). Understand the critical difference between the Fragment's lifecycle and its view's lifecycle.</li>
+                                    <li><strong>ViewModel Lifecycle:</strong> Understand that a ViewModel's scope is tied to its owner (Activity or Fragment). It survives configuration changes, making it the correct place to hold UI state. Its 'onCleared()' method is your last chance to clean up resources.</li>
                                     <li><strong>The Back Stack:</strong> How 'addToBackStack()' affects the Fragment lifecycle. What happens when you pop a Fragment?</li>
                                 </ul>
                                 <h4 class="font-semibold mt-4 mb-2 text-red-600">Interview Pitfall & Trick Questions:</h4>
-                                <p><strong>Interviewer:</strong> "An Activity has two fragments, A and B. I replace Fragment A with Fragment C using a FragmentTransaction and call 'addToBackStack()'. What lifecycle methods are called on Fragments A and B when this happens?"</p>
+                                <p><strong>Interviewer:</strong> "An Activity has two fragments, A and B. I replace Fragment A with Fragment C using a FragmentTransaction and call 'addToBackStack()'. What lifecycle methods are called on Fragments A and B?"</p>
                                 <p><strong>Your Answer:</strong> "For Fragment A, its view will be destroyed, so 'onPause', 'onStop', 'onDestroyView' will be called. However, the Fragment instance itself is NOT destroyed; 'onDestroy' and 'onDetach' are NOT called because it's on the back stack. For Fragment B, nothing happens. It remains in its current state because it was not part of the transaction."</p>
                                 <h4 class="font-semibold mt-4 mb-2 text-green-600">Exercise:</h4>
-                                <p>Create an app with a single Activity. Add two buttons: "Add Fragment" and "Replace Fragment". Log every single lifecycle callback for both the Activity and the Fragments to the Logcat. Observe the differences when you add vs. replace, and when you press the back button after adding a fragment to the back stack.</p>
+                                <p>Create an app with a single Activity. Add two buttons: "Add Fragment" and "Replace Fragment". Log every single lifecycle callback for the Activity, Fragments, and a shared ViewModel to the Logcat. Observe the differences, especially during rotation and back presses.</p>
                             `
                         },
                         {
-                            title: 'Services, BroadcastReceivers, ContentProviders',
+                            title: 'Intents & Jetpack Navigation',
                             content: `
-                                <p class="mb-4">These are the components for background work and inter-app communication. Modern Android has introduced stricter limitations on them, so knowing the modern best practices is vital.</p>
+                                <p class="mb-4">Intents are the 'glue' of the Android OS, enabling communication between components. Jetpack Navigation is the modern, structured way to handle all in-app navigation, providing a single source of truth.</p>
                                 <h4 class="font-semibold mt-4 mb-2 text-indigo-600">Key Concepts:</h4>
                                 <ul class="list-disc list-inside space-y-2 mb-4">
-                                    <li><strong>Services:</strong> Understand the three types: Started, Bound, and Foreground. When do you use each? How has Android 8 (API 26) and higher restricted background services? Why is 'WorkManager' now the preferred solution for most background tasks?</li>
-                                    <li><strong>BroadcastReceivers:</strong> The difference between static (manifest-declared) and dynamic (context-registered) receivers. Which implicit broadcasts can you no longer receive on modern Android?</li>
-                                    <li><strong>ContentProviders:</strong> The primary way to share data securely with other apps. While you may not write them often, you use them constantly (e.g., Contacts, MediaStore). Understand the basic principles of how they work with URIs and a 'ContentResolver'.</li>
+                                    <li><strong>Explicit vs. Implicit Intents:</strong> Explicit intents target a specific component (e.g., 'startActivity(Intent(this, DetailActivity::class.java))'). Implicit intents declare an action to be performed, letting the system find a component that can handle it (e.g., opening a web page or sharing text).</li>
+                                    <li><strong>Jetpack Navigation Component:</strong> The standard for modern apps. It involves a Navigation Graph (an XML or Compose resource), a 'NavHost' (the container for your destinations), and a 'NavController' (the object that manages navigation actions).</li>
+                                    <li><strong>Navigation in Compose:</strong> Uses a 'NavHost' composable and a 'rememberNavController()' to manage screen transitions in a pure-Compose app. Routes are simple strings.</li>
+                                    <li><strong>Passing Arguments:</strong> How to safely pass data between destinations using Safe Args (for XML) or by defining arguments in your route strings in Compose.</li>
                                 </ul>
                                 <h4 class="font-semibold mt-4 mb-2 text-red-600">Interview Pitfall & Trick Questions:</h4>
-                                <p><strong>Interviewer:</strong> "I need to perform a long-running data sync operation that must complete, even if the user backgrounds the app. A started Service seems right, but my app crashes on Android 10. Why?"</p>
-                                <p><strong>Your Answer:</strong> "Starting from Android 8, the system imposes strict limitations on background services. A long-running task in a regular background service will be killed by the system after a few minutes. To guarantee execution, you have two main options: 1) Make it a Foreground Service by showing a persistent notification to the user, which is appropriate for user-initiated tasks like music playback or a file download. 2) The recommended approach for deferrable but guaranteed work like data sync is to use 'WorkManager'. It respects system health, survives process death, and handles all the background execution restrictions for you."</p>
+                                <p><strong>Interviewer:</strong> "You navigate from screen A to screen B. The user presses the home button, then opens the app again from the recents list. Explain the task stack and what happens to your activities."</p>
+                                <p><strong>Your Answer:</strong> "When you navigate A -> B, Activity B is placed on top of A in the app's task stack. Pressing home moves the entire task to the background. When the user reopens the app, the system brings the existing task to the foreground with its stack intact. Activity B will be on top and its 'onRestart()' and 'onStart()' methods will be called. The state is preserved."</p>
                                 <h4 class="font-semibold mt-4 mb-2 text-green-600">Exercise:</h4>
-                                <p>Use 'WorkManager' to schedule a one-time task that fetches some data from a public API (like a random joke API) and displays it in a system notification.</p>
+                                <p>Create a two-screen app using Navigation for Compose. The first screen has an input field. The user types their name, clicks a button, and it navigates to the second screen, passing the name as an argument to be displayed in a greeting message.</p>
                             `
                         },
+                        {
+                            title: 'App Resources & Theming for Compose',
+                            content: `
+                                <p class="mb-4">Properly managing resources is fundamental to building a flexible and maintainable app that looks good on any device. This includes everything from strings and images to defining a consistent look and feel with a theme.</p>
+                                <h4 class="font-semibold mt-4 mb-2 text-indigo-600">Key Concepts:</h4>
+                                <ul class="list-disc list-inside space-y-2 mb-4">
+                                    <li><strong>Resource Qualifiers:</strong> The power of the 'res' directory comes from qualifiers. You can provide different resources for different screen densities ('-mdpi', '-xhdpi'), languages ('-es', '-fr'), or modes ('-night'). The system automatically selects the correct one.</li>
+                                    <li><strong>Strings, Dimensions, Colors:</strong> Never hardcode these. Always define them in XML files ('strings.xml', 'dimens.xml', 'colors.xml'). This is essential for localization and consistent design.</li>
+                                    <li><strong>Theming in Compose:</strong> Compose uses a 'MaterialTheme' composable. You define your app's color palette, typography, and shapes in a 'Theme.kt' file. You then access these theme values throughout your UI (e.g., 'MaterialTheme.colors.primary', 'MaterialTheme.typography.h1').</li>
+                                    <li><strong>Light & Dark Theme:</strong> Jetpack Compose makes this easy. The 'MaterialTheme' composable can take different color palettes based on the system setting ('isSystemInDarkTheme()').</li>
+                                </ul>
+                                <h4 class="font-semibold mt-4 mb-2 text-red-600">Interview Pitfall & Trick Questions:</h4>
+                                <p><strong>Interviewer:</strong> "What's the difference between 'dp', 'sp', and 'px'?"</p>
+                                <p><strong>Your Answer:</strong> "'px' stands for pixels, which is an absolute physical pixel on the screen. It should be avoided because it doesn't scale across different screen densities. 'dp' or 'dip' is a Density-Independent Pixel. It's an abstract unit that scales to have a uniform dimension across devices of different densities. It should be used for layout sizes. 'sp' is a Scale-Independent Pixel. It's like 'dp' but also scales based on the user's font size preference in their system settings. It should always be used for font sizes to ensure accessibility."</p>
+                                <h4 class="font-semibold mt-4 mb-2 text-green-600">Exercise:</h4>
+                                <p>In a Compose project, modify the 'Theme.kt' file to define a custom color palette for both light and dark themes. Create a simple screen with text and buttons that use these theme colors. Verify that the UI correctly switches colors when you toggle the device's dark mode.</p>
+                            `
+                        },
+                        {
+                            title: 'Modern Data Persistence',
+                            content: `
+                                <p class="mb-4">Apps need to save data. Understanding the modern, recommended options for data persistence is crucial for building robust, offline-capable applications.</p>
+                                <h4 class="font-semibold mt-4 mb-2 text-indigo-600">Key Concepts:</h4>
+                                <ul class="list-disc list-inside space-y-2 mb-4">
+                                    <li><strong>Room:</strong> Part of Jetpack, Room is an abstraction layer over SQLite that reduces boilerplate and provides compile-time verification of SQL queries. It's the standard for storing large amounts of structured, relational data. Key components are the 'Entity', 'DAO' (Data Access Object), and 'Database'.</li>
+                                    <li><strong>Data Access Objects (DAO):</strong> This is where you define your database queries using annotations. Room can return data from DAOs as 'Flow', making it easy to build reactive UIs that update automatically when the database changes.</li>
+                                    <li><strong>Jetpack DataStore:</strong> The modern replacement for 'SharedPreferences'. It provides two implementations: Preferences DataStore (for simple key-value pairs) and Proto DataStore (for typed objects using Protocol Buffers). It is fully asynchronous (using Coroutines and Flow) and safer to call on the UI thread.</li>
+                                </ul>
+                                <h4 class="font-semibold mt-4 mb-2 text-red-600">Interview Pitfall & Trick Questions:</h4>
+                                <p><strong>Interviewer:</strong> "Why is DataStore preferred over SharedPreferences?"</p>
+                                <p><strong>Your Answer:</strong> "DataStore improves on SharedPreferences in several key ways. First, it's fully asynchronous using Kotlin Coroutines and Flow, so it's safe to use from the main thread without blocking it. SharedPreferences has synchronous APIs that can cause UI jank. Second, DataStore provides transactionality and signals errors, making it more robust. SharedPreferences can fail silently. Finally, Proto DataStore provides type safety, which is not possible with SharedPreferences, helping to prevent runtime errors."</p>
+                                <h4 class="font-semibold mt-4 mb-2 text-green-600">Exercise:</h4>
+                                <p>Create a simple 'Note' entity (id, title, content). Use Room to create a database for these notes. Implement a DAO with methods to insert a note and get all notes as a 'Flow<List<Note>>'.</p>
+                            `
+                        },
+                        {
+                            title: 'Runtime Permissions & Scoped Storage',
+                            content: `
+                                <p class="mb-4">User privacy is paramount. Modern Android has shifted to a runtime permission model and restricted storage access to protect users. You must know how to work within these constraints.</p>
+                                <h4 class="font-semibold mt-4 mb-2 text-indigo-600">Key Concepts:</h4>
+                                <ul class="list-disc list-inside space-y-2 mb-4">
+                                    <li><strong>Runtime Permissions:</strong> For dangerous permissions (like Camera, Location, Contacts), you must request them from the user while the app is running. You can't just declare them in the manifest.</li>
+                                    <li><strong>The Request Flow:</strong> The standard flow is: 1. Check if you already have the permission. 2. If not, check if you should show a rationale (if the user previously denied it). 3. If needed, show the rationale explaining why you need the permission. 4. Launch the system permission request dialog. 5. Handle the user's decision (granted or denied) in a callback.</li>
+                                    <li><strong>Scoped Storage:</strong> Starting with Android 10, apps have restricted access to external storage. By default, an app can only access its own app-specific directory and shared media collections (like Photos or Music) via the MediaStore API. Direct, broad file path access is no longer allowed for most use cases.</li>
+                                    <li><strong>Storage Access Framework (SAF):</strong> To let the user select a file or directory outside your app's sandbox (e.g., from Google Drive or a Downloads folder), you must use the Storage Access Framework. This involves launching an intent that opens a system file picker.</li>
+                                </ul>
+                                <h4 class="font-semibold mt-4 mb-2 text-red-600">Interview Pitfall & Trick Questions:</h4>
+                                <p><strong>Interviewer:</strong> "My app needs to save a photo that the user just took with the in-app camera. Where should I save it, and do I need any special permissions on Android 11+?"</p>
+                                <p><strong>Your Answer:</strong> "The best place to save it is in the shared media collections using the MediaStore API. You would save it to the 'MediaStore.Images.Media.EXTERNAL_CONTENT_URI'. On Android 10 and above, because of Scoped Storage, you do NOT need the WRITE_EXTERNAL_STORAGE permission to add files to the media collection. Your app is given 'contributory' access by default. You only need the permission if you want to modify or delete media files created by *other* apps."</p>
+                                <h4 class="font-semibold mt-4 mb-2 text-green-600">Exercise:</h4>
+                                <p>In a Compose app, use the Accompanist Permissions library to create a screen that checks for the CAMERA permission. If permission is not granted, it should show a button that says "Request Camera Permission". If granted, it should show text that says "Camera permission granted!".</p>
+                            `
+                        }
                     ]
                 },
                 {
@@ -248,38 +302,46 @@ fun handleState(state: UiState<List<String>>) {
                     title: 'Dependency Injection',
                     topics: [
                         {
-                            title: 'Dagger2 vs. Hilt',
+                            title: 'Dagger Hilt Deep Dive',
                             content: `
-                                <p class="mb-4">Dependency Injection (DI) is a core principle for building scalable, testable apps. Manually creating dependencies (e.g., 'UserRepository(apiService)') creates tight coupling. DI frameworks manage this for you. Dagger2 is the powerful, but complex standard. Hilt is a layer on top of Dagger that dramatically simplifies DI for Android.</p>
+                                <p class="mb-4">Dependency Injection (DI) is a core principle for building scalable, testable apps. Manually creating dependencies (e.g., 'UserRepository(apiService)') creates tight coupling. Hilt is a layer on top of Dagger that dramatically simplifies DI for Android by providing a standard set of components and scopes.</p>
                                 <h4 class="font-semibold mt-4 mb-2 text-indigo-600">Key Concepts:</h4>
                                 <ul class="list-disc list-inside space-y-2 mb-4">
                                     <li><strong>Why DI?:</strong> It decouples your classes, making them easier to test, reuse, and maintain. Instead of a class creating its own dependencies, they are 'injected' from outside.</li>
-                                    <li><strong>Dagger2 Internals:</strong> Understand the core annotations: '@Inject' (on constructors to say "I can be injected"), '@Module' (classes that provide dependencies you don't own, like from a library), '@Provides' (methods in a Module that create dependencies), and '@Component' (the bridge that connects providers and consumers).</li>
-                                    <li><strong>Hilt: The Android Layer:</strong> Hilt removes the boilerplate of creating and managing Dagger components. It provides predefined components tied to Android lifecycles (e.g., '@SingletonComponent', '@ActivityComponent'). You just use annotations like '@HiltAndroidApp', '@AndroidEntryPoint', and '@Inject'.</li>
-                                    <li><strong>Scopes:</strong> Annotations like '@Singleton' or '@ActivityScoped' tell the DI framework how long an instance should live. A '@Singleton' lives for the app's entire lifecycle, while an '@ActivityScoped' instance is destroyed when the Activity is.</li>
+                                    <li><strong>Hilt Annotations:</strong> '@HiltAndroidApp' (on Application class), '@AndroidEntryPoint' (on Activities, Fragments, etc.), '@Inject' (on constructors), '@Module' (to provide instances you don't own), '@Provides' (the method that creates the instance), '@Binds' (for providing an implementation for an interface).</li>
+                                    <li><strong>Component Hierarchy & Scopes:</strong> Hilt has a predefined component hierarchy (e.g., SingletonComponent -> ActivityComponent -> ViewModelComponent). Scopes like '@Singleton' or '@ActivityScoped' tie the lifetime of an object to the lifetime of its corresponding component.</li>
                                 </ul>
                                 <h4 class="font-semibold mt-4 mb-2 text-indigo-600">Practical Code Snippet (Simple Hilt Setup):</h4>
                                 <pre><code class="language-kotlin">// In your Application class
 @HiltAndroidApp
-class MyApplication : Application() { ... }
+class MyApplication : Application()
 
-// In your Activity/Fragment
-@AndroidEntryPoint
-class MyActivity : AppCompatActivity() {
-    @Inject lateinit var analyticsService: AnalyticsService
-    // ...
+// A module to provide Retrofit, which we don't own
+@Module
+@InstallIn(SingletonComponent::class)
+object NetworkModule {
+    @Provides
+    @Singleton
+    fun provideRetrofit(): Retrofit {
+        return Retrofit.Builder().baseUrl("https://api.example.com").build()
+    }
 }
 
-// The service being injected
-@Singleton // Will be a single instance for the whole app
-class AnalyticsService @Inject constructor() {
-    fun trackEvent(eventName: String) { ... }
-}</code></pre>
+// In your ViewModel
+@HiltViewModel
+class MyViewModel @Inject constructor(
+    private val retrofit: Retrofit
+) : ViewModel() { /* ... */ }
+
+// In your Composable screen (using the Hilt Navigation Compose library)
+// @Composable
+// fun MyScreen(viewModel: MyViewModel = hiltViewModel()) { /* ... */ }
+</code></pre>
                                 <h4 class="font-semibold mt-4 mb-2 text-red-600">Interview Pitfall & Trick Questions:</h4>
-                                <p><strong>Interviewer:</strong> "When would you need to create a custom Hilt '@Module'?"</p>
-                                <p><strong>Your Answer:</strong> "You need a module when you have to provide a dependency that you don't own, so you can't add '@Inject' to its constructor. Common examples include providing an instance of Retrofit, an OkHttpClient, or a Room database. You create a class annotated with '@Module' and a method annotated with '@Provides' that returns the instance of the object you need to inject."</p>
+                                <p><strong>Interviewer:</strong> "What is the difference between '@Provides' and '@Binds' in a Dagger/Hilt module?"</p>
+                                <p><strong>Your Answer:</strong> "You use '@Provides' for complex object creation, where you need to execute code, like when using a builder pattern (e.g., Retrofit or Room). It's a concrete function. You use '@Binds' as a more efficient way to tell Dagger which implementation to use for a given interface. It's an abstract function, and because Dagger doesn't need to create an instance of the module or call a method, it generates more efficient code. You'd use '@Binds' to provide a 'UserRepositoryImpl' for a 'UserRepository' interface, for example."</p>
                                 <h4 class="font-semibold mt-4 mb-2 text-green-600">Exercise:</h4>
-                                <p>Create a simple project with an Activity. Define a 'Logger' class. Use Hilt to inject this 'Logger' into your Activity and call a log method from 'onCreate'.</p>
+                                <p>Create a simple project with a ViewModel. Define a 'Logger' interface and a 'LoggerImpl' class. Use a Hilt module with '@Binds' to provide the implementation. Inject the 'Logger' interface into your ViewModel and call a log method from it.</p>
                             `
                         }
                     ]
@@ -324,18 +386,19 @@ class AnalyticsService @Inject constructor() {
                             `
                         },
                         {
-                            title: 'Memory Leaks & Performance',
+                            title: 'Memory Leaks & Performance Profiling',
                             content: `
                                 <p class="mb-4">A performant app is a high-quality app. A single memory leak can bring an app to its knees with OutOfMemoryError crashes. Knowing how to find and fix these issues is a hallmark of a senior developer.</p>
                                 <h4 class="font-semibold mt-4 mb-2 text-indigo-600">Key Concepts:</h4>
                                 <ul class="list-disc list-inside space-y-2 mb-4">
-                                    <li><strong>Common Memory Leaks:</strong> The classic culprits are static references to Activities or Views, inner classes/anonymous classes holding implicit references to their outer class, and listeners/callbacks not being unregistered in the proper lifecycle method (e.g., 'onDestroy').</li>
+                                    <li><strong>Common Memory Leaks:</strong> The classic culprits are static references to Activities, passing context incorrectly, and listeners/callbacks/coroutines not being cancelled or unregistered in the proper lifecycle method.</li>
                                     <li><strong>Tools of the Trade:</strong> LeakCanary is an essential library for detecting leaks during development. For deep dives, the Android Studio Memory Profiler is your best friend. It lets you inspect the heap, track allocations, and identify objects that are not being garbage collected.</li>
-                                    <li><strong>UI Performance:</strong> Understand what causes "jank" (dropped frames). The main cause is doing too much work on the main thread. Use Profiler to find long-running methods. Optimize layouts to reduce overdraw and hierarchy depth. Use 'RecyclerView' correctly (e.g., use 'DiffUtil' for efficient updates).</li>
+                                    <li><strong>UI Performance (Jank):</strong> Jank (dropped frames) is caused by doing too much work on the main thread. Use the CPU Profiler to find long-running methods and the System Trace to visualize frame rendering.</li>
+                                    <li><strong>Compose Performance:</strong> Understand how to minimize recompositions. Use 'remember', ensure data classes used in composables are 'stable' (use 'val' and immutable types), and use 'derivedStateOf' for expensive calculations. Use Layout Inspector's recomposition counter to debug.</li>
                                 </ul>
                                 <h4 class="font-semibold mt-4 mb-2 text-red-600">Interview Pitfall & Trick Questions:</h4>
-                                <p><strong>Interviewer:</strong> "I have a 'Handler' in my Activity that I use to post a delayed message. I rotate the screen, and LeakCanary reports a leak. Why?"</p>
-                                <p><strong>Your Answer:</strong> "A non-static inner class (or an anonymous class) 'Handler' holds an implicit reference to the outer Activity. When you post a delayed message, that message holds a reference to the Handler, which in turn holds a reference to the original Activity instance. When you rotate the screen, the original Activity is destroyed, but the garbage collector can't reclaim it because the message queue still has a message pointing to it. The leak will persist until the message is processed. The fix is to make the Handler a static inner class and hold a 'WeakReference' to the Activity to avoid the strong link."</p>
+                                <p><strong>Interviewer:</strong> "I'm passing a 'List' from my ViewModel to my Composable, and it's recomposing way too often, even when the data hasn't changed. Why?"</p>
+                                <p><strong>Your Answer:</strong> "Jetpack Compose's stability system might not consider the standard Java/Kotlin 'List' interface as stable, because it's mutable. If Compose can't guarantee a type is stable, it will recompose the composable that accepts it anytime its parent recomposes. The fix is to use an immutable collection type from Kotlinx Collections ('ImmutableList') or to wrap the list in a custom stable class. This ensures Compose knows the data hasn't changed and can safely skip the recomposition."</p>
                                 <h4 class="font-semibold mt-4 mb-2 text-green-600">Exercise:</h4>
                                 <p>Intentionally create a memory leak. Make a singleton object that takes a 'Context' in its 'init' method and stores it in a property. Pass an Activity context to it. Then, use the Android Studio Profiler to rotate the screen several times and observe that multiple instances of your Activity are kept in memory.</p>
                             `
@@ -354,77 +417,106 @@ class AnalyticsService @Inject constructor() {
                                 <ul class="list-disc list-inside space-y-2 mb-4">
                                     <li><strong>The Testing Pyramid:</strong> The concept that you should have many fast, small unit tests at the base, fewer medium-speed integration tests in the middle, and a very small number of slow, end-to-end UI tests at the top.</li>
                                     <li><strong>Unit Tests (in /test):</strong> Run on the local JVM. They are fast and used to test individual classes in isolation, like ViewModels or utility functions. Use JUnit as the framework and Mockito (or MockK) to create mock objects for dependencies (like a Repository).</li>
-                                    <li><strong>Integration/UI Tests (in /androidTest):</strong> Run on a real device or emulator. They are slower but can test how parts of your app work together or interact with the Android framework. Espresso is the primary tool for writing UI tests.</li>
-                                    <li><strong>Espresso Basics:</strong> The core is 'onView(Matcher)', 'perform(ViewAction)', and 'check(ViewAssertion)'. For example: 'onView(withId(R.id.loginButton)).perform(click())'.</li>
+                                    <li><strong>Integration/UI Tests (in /androidTest):</strong> Run on a real device or emulator. They are slower but can test how parts of your app work together or interact with the Android framework.</li>
+                                    <li><strong>Testing Compose:</strong> Use the 'createComposeRule()' to write UI tests for composables. You can find nodes using semantic tags ('onNodeWithTag'), perform actions ('performClick'), and assert their properties ('assertIsDisplayed').</li>
                                     <li><strong>Testable Architecture:</strong> This is why DI is so important. By injecting dependencies, you can provide mock versions in your tests, allowing you to test a class's logic in complete isolation.</li>
                                 </ul>
-                                <h4 class="font-semibold mt-4 mb-2 text-indigo-600">Practical Code Snippet (ViewModel Unit Test with Mockito):</h4>
-                                <pre><code class="language-kotlin">// Assume a simple ViewModel
-class LoginViewModel(private val authRepo: AuthRepository) {
-    fun login(u: String, p: String): Boolean = authRepo.authenticate(u, p)
-}
+                                <h4 class="font-semibold mt-4 mb-2 text-indigo-600">Practical Code Snippet (ViewModel Unit Test with MockK):</h4>
+                                <pre><code class="language-kotlin">// Assume a ViewModel
+class MyViewModel(private val userRepo: UserRepository) { /*...*/ }
 
-// The JUnit Test
+// The JUnit4 Test with MockK
 @Test
-fun \`login returns true for correct credentials\`() {
+fun \`example test\`() {
     // 1. Arrange
-    val mockAuthRepo = mock(AuthRepository::class.java)
-    \`when\`(mockAuthRepo.authenticate("user", "pass")).thenReturn(true)
-    val viewModel = LoginViewModel(mockAuthRepo)
+    val mockUserRepo = mockk<UserRepository>()
+    coEvery { mockUserRepo.getUser("123") } returns User("John Doe")
+    val viewModel = MyViewModel(mockUserRepo)
 
     // 2. Act
-    val result = viewModel.login("user", "pass")
+    viewModel.loadUser("123")
 
     // 3. Assert
-    assertTrue(result)
+    // ... assert something on the viewModel's state
 }</code></pre>
                                 <h4 class="font-semibold mt-4 mb-2 text-red-600">Interview Pitfall & Trick Questions:</h4>
-                                <p><strong>Interviewer:</strong> "What is Robolectric and when would you use it?"</p>
-                                <p><strong>Your Answer:</strong> "Robolectric is a framework that allows you to run Android tests that depend on the Android SDK directly on the JVM, inside the '/test' source set. It creates 'shadow' versions of Android classes. This makes it a powerful 'medium-fidelity' testing tool. You'd use it when you need to test logic that interacts with Android APIs (like 'Context' or 'SharedPreferences') but you don't need to test the full UI rendering, so you want the test to run faster than a full Espresso instrumented test."</p>
+                                <p><strong>Interviewer:</strong> "How do you test a coroutine that uses 'Dispatchers.Main' in a local JVM unit test?"</p>
+                                <p><strong>Your Answer:</strong> "The 'Main' dispatcher is not available in a JVM test, so calling it will throw an exception. The standard practice is to use a 'TestDispatcher' from the 'kotlinx-coroutines-test' library. Before the test runs, you use 'Dispatchers.setMain(testDispatcher)' to replace the main dispatcher. This gives you full control over the timing of the coroutine, allowing you to advance the virtual clock and run assertions in a deterministic way."</p>
                                 <h4 class="font-semibold mt-4 mb-2 text-green-600">Exercise:</h4>
-                                <p>Write a simple Espresso test for an Activity that has an 'EditText' and a 'Button'. The test should type text into the 'EditText', click the 'Button', and then verify that a 'TextView' on the screen now displays the text that was entered.</p>
+                                <p>Write a simple Compose UI test. The UI should have a Button and a Text field. The test should click the button, which updates the text, and then assert that the text field displays the new value.</p>
                             `
                         }
                     ]
                 },
                 {
-                    id: 'ui_ux',
-                    title: 'UI/UX & Custom Views',
+                    id: 'jetpack_compose',
+                    title: 'Modern UI with Jetpack Compose',
                     topics: [
                         {
-                            title: 'Custom Views & Jetpack Compose',
+                            title: 'Compose Fundamentals: State & Recomposition',
                             content: `
-                                <p class="mb-4">Building a great app requires more than just making it work; it needs to look and feel great. This means knowing how to go beyond the standard widgets and create custom experiences, and embracing the modern declarative UI toolkit, Jetpack Compose.</p>
-                                <h4 class="font-semibold mt-4 mb-2 text-indigo-600">Key Concepts (Custom Views - XML):</h4>
+                                <p class="mb-4">Jetpack Compose is a declarative UI toolkit. You describe your UI by calling Composable functions. When the app's state changes, Compose intelligently "recomposes" (re-runs the functions) to update the UI. Mastering state is the key to mastering Compose.</p>
+                                <h4 class="font-semibold mt-4 mb-2 text-indigo-600">Key Concepts:</h4>
                                 <ul class="list-disc list-inside space-y-2 mb-4">
-                                    <li><strong>The View Lifecycle:</strong> 'onMeasure()' (to determine size), 'onLayout()' (to position children, for ViewGroups), and 'onDraw()' (to render on the Canvas). Understanding this flow is essential.</li>
-                                    <li><strong>Canvas API:</strong> The 'onDraw' method gives you a Canvas object. You can use it to draw shapes, text, bitmaps, and paths to create any UI you can imagine.</li>
-                                    <li><strong>Custom Attributes:</strong> How to define your own XML attributes for your custom view using '<declare-styleable>' so you can configure it easily from your layout files.</li>
+                                    <li><strong>Declarative Mindset:</strong> You describe *what* the UI should look like for a given state, not *how* to change it step-by-step.</li>
+                                    <li><strong>@Composable Functions:</strong> The building blocks of your UI. They are just Kotlin functions annotated with '@Composable'.</li>
+                                    <li><strong>State:</strong> Any value that can change over time. In Compose, you create state with 'mutableStateOf()'.</li>
+                                    <li><strong>'remember':</strong> To preserve state across recompositions, you must use 'remember'. If you don't, the state variable will be reset to its initial value every time the composable re-runs.</li>
+                                    <li><strong>Recomposition:</strong> When a state object that a composable reads from is updated, Compose schedules that composable (and any others that read the same state) to be re-run to reflect the new state in the UI.</li>
                                 </ul>
-                                <h4 class="font-semibold mt-4 mb-2 text-indigo-600">Key Concepts (Jetpack Compose):</h4>
-                                <ul class="list-disc list-inside space-y-2 mb-4">
-                                    <li><strong>Declarative UI:</strong> You describe your UI by calling Composable functions. You don't manually manipulate views. When the state changes, the framework intelligently "recomposes" (re-draws) the parts of the UI that need to change.</li>
-                                    <li><strong>State Management:</strong> State is any value that can change over time. In Compose, you use 'remember' and 'mutableStateOf' to create and hold state. When this state is updated, any composable that reads it will be recomposed.</li>
-                                    <li><strong>Layouts & Modifiers:</strong> You build complex UIs by nesting basic layout composables like 'Column', 'Row', and 'Box'. You customize their appearance and behavior using a powerful chain of 'Modifier' functions (e.g., 'Modifier.padding(16.dp).background(Color.Blue)').</li>
-                                </ul>
-                                <h4 class="font-semibold mt-4 mb-2 text-indigo-600">Practical Code Snippet (Simple Jetpack Compose UI):</h4>
+                                <h4 class="font-semibold mt-4 mb-2 text-indigo-600">Practical Code Snippet (A Simple Counter):</h4>
                                 <pre><code class="language-kotlin">@Composable
-fun GreetingCard(name: String) {
+fun Counter() {
+    // 'remember' keeps the 'count' value alive across recompositions.
+    // 'mutableStateOf(0)' creates an observable state object.
     var count by remember { mutableStateOf(0) }
 
-    Column(modifier = Modifier.padding(16.dp)) {
-        Text(text = "Hello, $name!")
-        Spacer(modifier = Modifier.height(8.dp))
-        Button(onClick = { count++ }) {
-            Text(text = "I have been clicked $count times")
-        }
+    Button(onClick = { count++ }) { // When clicked, the state updates...
+        // ...which causes any composable reading 'count' to recompose.
+        Text("Clicked $count times")
     }
 }</code></pre>
                                 <h4 class="font-semibold mt-4 mb-2 text-red-600">Interview Pitfall & Trick Questions:</h4>
-                                <p><strong>Interviewer:</strong> "In Jetpack Compose, what is the purpose of the 'remember' function? What happens if you forget to use it with 'mutableStateOf'?"</p>
-                                <p><strong>Your Answer:</strong> "'remember' tells Compose to keep a value in memory across recompositions. State in Compose needs to be 'remembered' so it doesn't get reset to its default value every time the composable function is re-run. If you use 'mutableStateOf' without wrapping it in 'remember', every time the composable recomposes (e.g., because a parent's state changed), your state variable would be re-initialized to its starting value, and any updates to it would be lost."</p>
+                                <p><strong>Interviewer:</strong> "Can you call a Composable function from a regular Kotlin function?"</p>
+                                <p><strong>Your Answer:</strong> "No. Composable functions can only be called from other Composable functions. This is enforced by the Compose compiler. This rule ensures that UI code is only ever executed within the controlled context of the Compose runtime, which is necessary to track state and manage recomposition."</p>
                                 <h4 class="font-semibold mt-4 mb-2 text-green-600">Exercise:</h4>
-                                <p>Create a custom View that extends 'View'. Override 'onDraw' to draw a circle in the center of the view. Add a custom attribute 'circleColor' that you can set from the XML layout.</p>
+                                <p>Create a composable with a 'TextField' and a 'Text' element. As the user types into the 'TextField', the 'Text' element below it should update in real-time to show what's being typed.</p>
+                            `
+                        },
+                        {
+                            title: 'Layouts, Modifiers & Theming',
+                            content: `
+                                <p class="mb-4">You build complex UIs in Compose by arranging simple building blocks. Layouts like 'Column', 'Row', and 'Box' position your composables, while the powerful 'Modifier' system is used for everything else: sizing, spacing, styling, and event handling.</p>
+                                <h4 class="font-semibold mt-4 mb-2 text-indigo-600">Key Concepts:</h4>
+                                <ul class="list-disc list-inside space-y-2 mb-4">
+                                    <li><strong>Layout Composables:</strong> 'Column' arranges items vertically. 'Row' arranges items horizontally. 'Box' stacks items on top of each other (like a FrameLayout). 'LazyColumn'/'LazyRow' are the equivalent of RecyclerView for displaying long, scrollable lists efficiently.</li>
+                                    <li><strong>Modifiers:</strong> Almost every composable accepts a 'Modifier' parameter. Modifiers are chained together to decorate a composable. The order matters! 'Modifier.padding(16.dp).clickable()' behaves differently than 'Modifier.clickable().padding(16.dp)'.</li>
+                                    <li><strong>Common Modifiers:</strong> '.fillMaxSize()', '.padding()', '.size()', '.background()', '.clickable()', '.weight()' (for distributing space in a Row/Column).</li>
+                                    <li><strong>MaterialTheme:</strong> The standard way to apply consistent styling. You access predefined colors, typography, and shapes like 'MaterialTheme.colors.primary' to ensure your app follows your design system.</li>
+                                </ul>
+                                <h4 class="font-semibold mt-4 mb-2 text-red-600">Interview Pitfall & Trick Questions:</h4>
+                                <p><strong>Interviewer:</strong> "Explain why the order of modifiers matters. Give an example."</p>
+                                <p><strong>Your Answer:</strong> "Modifiers are applied from the outside-in. Each modifier decorates the result of the one before it. A classic example is padding vs. clickable. If you write 'Modifier.padding(16.dp).clickable()', the padding is applied first, creating a smaller inner area. Only that inner area will be clickable. If you write 'Modifier.clickable().padding(16.dp)', the clickable area is applied first to the entire layout space, and then the padding is applied inside that, pushing the content inward. The result is a large, invisible clickable area with padding inside it. The visual result might be the same, but the touch target is completely different."</p>
+                                <h4 class="font-semibold mt-4 mb-2 text-green-600">Exercise:</h4>
+                                <p>Create a user profile card using a 'Row'. The 'Row' should contain a circular 'Image' on the left and a 'Column' on the right. The 'Column' should contain the user's name (bold text) and status (regular text). Use modifiers to add appropriate spacing and alignment.</p>
+                            `
+                        },
+                        {
+                            title: 'State Management & Unidirectional Data Flow',
+                            content: `
+                                <p class="mb-4">For simple screens, 'remember { mutableStateOf(...) }' is fine. For complex screens and entire apps, you need a robust state management strategy. The recommended pattern is Unidirectional Data Flow (UDF), where state flows down and events flow up.</p>
+                                <h4 class="font-semibold mt-4 mb-2 text-indigo-600">Key Concepts:</h4>
+                                <ul class="list-disc list-inside space-y-2 mb-4">
+                                    <li><strong>Unidirectional Data Flow (UDF):</strong> State flows down from a state holder (like a ViewModel) to the UI. The UI raises events (like button clicks) which flow up to the state holder. The state holder processes the event, updates its state, and the new state flows back down to the UI, causing a recomposition. This makes the data flow predictable and easy to debug.</li>
+                                    <li><strong>State Hoisting:</strong> The practice of moving state up from a composable to its caller. This makes composables more reusable and testable, as they become "stateless". The state and the lambdas to modify it are passed in as parameters.</li>
+                                    <li><strong>ViewModel as State Holder:</strong> The Jetpack 'ViewModel' is the ideal state holder. It survives configuration changes and can expose its state to the UI using 'StateFlow'.</li>
+                                    <li><strong>Connecting ViewModel to Compose:</strong> You use 'collectAsStateWithLifecycle()' to collect a 'StateFlow' from a ViewModel in a lifecycle-aware manner. This ensures the UI only collects the state when it's on screen, saving resources.</li>
+                                </ul>
+                                <h4 class="font-semibold mt-4 mb-2 text-red-600">Interview Pitfall & Trick Questions:</h4>
+                                <p><strong>Interviewer:</strong> "What is the problem with using 'collectAsState()' directly in a composable instead of 'collectAsStateWithLifecycle()'?"</p>
+                                <p><strong>Your Answer:</strong> "'collectAsState()' will continue to collect from the Flow as long as the composable is in the composition, even if the app is in the background. This can waste resources by receiving and processing updates that the user can't see. 'collectAsStateWithLifecycle()' is the recommended, safer alternative. It's a lifecycle-aware collector that automatically starts collecting when the UI is in the 'STARTED' state and stops when it's 'STOPPED', preventing resource waste when the app is backgrounded."</p>
+                                <h4 class="font-semibold mt-4 mb-2 text-green-600">Exercise:</h4>
+                                <p>Refactor the Counter exercise. Create a 'CounterViewModel' that holds the count in a 'MutableStateFlow'. The Composable should take the count and a lambda '(onIncrement: () -> Unit)' as parameters. The ViewModel should be injected into the screen, and the Composable should be stateless, simply displaying the count and calling the lambda on button click.</p>
                             `
                         }
                     ]
@@ -439,30 +531,29 @@ fun GreetingCard(name: String) {
                                 <p class="mb-4">This is the pinnacle of senior-level thinking. It's not just about writing code, but about structuring the entire application so it can be maintained and scaled by a team over many years. System design questions are standard in SDE-2+ interviews.</p>
                                 <h4 class="font-semibold mt-4 mb-2 text-indigo-600">Key Architectural Patterns:</h4>
                                 <ul class="list-disc list-inside space-y-2 mb-4">
-                                    <li><strong>MVVM (Model-View-ViewModel):</strong> The standard recommended by Google. The View (Activity/Fragment) observes data from the ViewModel. The ViewModel holds UI-related data, is lifecycle-aware, and gets its data from the Model (Repository). It promotes a clean separation of concerns.</li>
-                                    <li><strong>MVI (Model-View-Intent):</strong> An evolution of MVVM, popular in Compose. It treats user actions as "Intents" which are processed to create a new "State". The UI is a simple function that renders a given State. This creates a unidirectional data flow, making state management more predictable.</li>
-                                    <li><strong>Clean Architecture:</strong> A set of principles for creating highly scalable, testable, and maintainable apps. It divides the app into layers (e.g., Domain, Data, Presentation) with a strict dependency rule: inner layers must not know anything about outer layers. This decouples your core business logic (Use Cases) from frameworks like Android.</li>
+                                    <li><strong>MVVM + UDF:</strong> The standard architecture for modern Android. The View (Compose UI) observes state from the ViewModel. The ViewModel holds UI state and exposes it via 'StateFlow'. The ViewModel gets its data from the Model (Repository). User events from the UI are sent to the ViewModel to be processed, creating a Unidirectional Data Flow.</li>
+                                    <li><strong>Clean Architecture:</strong> A set of principles for creating highly scalable, testable, and maintainable apps. It divides the app into layers (Presentation, Domain, Data) with a strict dependency rule: inner layers must not know anything about outer layers. This decouples your core business logic (Use Cases in the Domain layer) from frameworks like Android.</li>
                                 </ul>
                                 <h4 class="font-semibold mt-4 mb-2 text-indigo-600">Multi-Module Strategy:</h4>
                                 <p class="mb-4">As an app grows, a single-module project becomes slow to build and hard to navigate. We split it into multiple, focused modules.</p>
                                 <ul class="list-disc list-inside space-y-2 mb-4">
                                     <li><strong>:app Module:</strong> The main application module. Often kept lean, primarily responsible for dependency injection setup and wiring the other modules together.</li>
-                                    <li><strong>Feature Modules (e.g., :feature_login, :feature_dashboard):</strong> Each feature of the app gets its own module. This allows teams to work on features in isolation and enables faster build times, since Gradle only needs to recompile the modules that have changed.</li>
-                                    <li><strong>Library Modules (e.g., :core, :data):</strong> ':core' can contain shared UI components, utility classes, etc. ':data' would contain your Repository implementations, API services, and database definitions. Feature modules would depend on these library modules.</li>
+                                    <li><strong>Feature Modules (e.g., :feature_login, :feature_dashboard):</strong> Each feature of the app gets its own module. This allows teams to work on features in isolation and enables faster build times.</li>
+                                    <li><strong>Library Modules (e.g., :core_ui, :core_data, :core_domain):</strong> These modules contain shared code. ':core_ui' has shared Composables and theme definitions. ':core_data' contains Repository implementations and data sources. ':core_domain' contains shared models and Use Case interfaces.</li>
                                 </ul>
                                 <h4 class="font-semibold mt-4 mb-2 text-red-600">Interview Pitfall & Trick Questions:</h4>
                                 <p><strong>Interviewer:</strong> "You're asked to design a Reddit-style client app from scratch. Describe your module structure and the key classes in your data flow for fetching and displaying a list of posts."</p>
-                                <p><strong>Your Answer:</strong> "I'd use a multi-module Clean Architecture approach.
-                                    <br><strong>Modules:</strong> ':app', ':core', ':data', ':feature_feed'.
+                                <p><strong>Your Answer:</strong> "I'd use a multi-module Clean Architecture approach with MVVM/UDF.
+                                    <br><strong>Modules:</strong> ':app', ':core_ui', ':core_data', ':core_domain', ':feature_feed'.
                                     <br><strong>Data Flow:</strong>
-                                    <br>1. <strong>View (Fragment in :feature_feed):</strong> Observes a 'StateFlow' of posts from the 'FeedViewModel'. Renders the list.
-                                    <br>2. <strong>ViewModel (in :feature_feed):</strong> Injected with a 'GetPostsUseCase'. Calls the use case to fetch data and updates its 'StateFlow' with Loading/Success/Error states.
-                                    <br>3. <strong>UseCase (in :feature_feed's domain layer):</strong> Injected with a 'PostsRepository' interface. Contains the core business logic for fetching posts.
-                                    <br>4. <strong>Repository Interface (in :feature_feed's domain layer):</strong> Defines the contract, e.g., 'getPosts(): Flow<List<Post>>'.
-                                    <br>5. <strong>Repository Implementation (in :data):</strong> Implements the interface. Injected with a 'PostApiService' and 'PostDao'. It decides whether to fetch from the network or local cache (the 'single source of truth' pattern).
-                                    <br>6. <strong>Data Sources (in :data):</strong> 'PostApiService' (Retrofit interface) and 'PostDao' (Room DAO)."</p>
+                                    <br>1. <strong>UI (in :feature_feed):</strong> A Composable screen observes a 'StateFlow' of UI state from the 'FeedViewModel'.
+                                    <br>2. <strong>ViewModel (in :feature_feed):</strong> Injected with a 'GetPostsUseCase'. Calls the use case and maps the result to a UI state object (e.g., Loading, Success, Error) which is emitted to its 'StateFlow'.
+                                    <br>3. <strong>UseCase (in :feature_feed):</strong> A simple class in the domain layer of the feature module, injected with a 'PostsRepository' interface. Its single public method executes the business logic of getting posts.
+                                    <br>4. <strong>Repository Interface (in :core_domain):</strong> Defines the contract, e.g., 'getPosts(): Flow<List<Post>>'. This allows the domain layer to be independent of the data layer.
+                                    <br>5. <strong>Repository Implementation (in :core_data):</strong> Implements the interface. Injected with a 'PostApiService' and 'PostDao'. It decides whether to fetch from the network or local cache (the 'single source of truth' pattern).
+                                    <br>6. <strong>Data Sources (in :core_data):</strong> 'PostApiService' (Retrofit interface) and 'PostDao' (Room DAO)."</p>
                                 <h4 class="font-semibold mt-4 mb-2 text-green-600">Exercise:</h4>
-                                <p>Diagram on paper the module dependencies for a simple music player app. It should have modules for the main app, a 'now playing' feature, a 'library' feature, a core module for shared code, and a data module for handling music files.</p>
+                                <p>Diagram on paper the module dependencies for a simple music player app. It should have modules for the main app, a 'now playing' feature, a 'library' feature, a 'core_ui' module, and a 'core_data' module for handling music files.</p>
                             `
                         }
                     ]
@@ -474,7 +565,7 @@ fun GreetingCard(name: String) {
                 dependency_injection: 10,
                 concurrency: 5,
                 testing: 5,
-                ui_ux: 10,
+                jetpack_compose: 10,
                 system_design: 5,
             }
         };
@@ -597,7 +688,7 @@ fun GreetingCard(name: String) {
 
             // Chart.js Radar Chart
             const ctx = document.getElementById('progressChart').getContext('2d');
-            const labels = roadmapData.modules.map(m => m.title.replace('&', '&\n'));
+            const labels = roadmapData.modules.map(m => m.title.replace('with Jetpack Compose', 'w/ Compose').replace('Fundamentals', ''));
             const data = roadmapData.modules.map(m => roadmapData.proficiency[m.id]);
 
             new Chart(ctx, {
